@@ -6,7 +6,8 @@
     "generate-css": "node scripts/generate-css.js",
     "generate-movegen-css": "node scripts/generate-movegen-css.js",
     "generate-check-css": "node scripts/generate-check-css.js",
-    "generate-all-css": "npm run generate-css && npm run generate-movegen-css && npm run generate-check-css",
+    "generate-movescoring-css": "node scripts/generate-movescoring-css.js",
+    "generate-all-css": "npm run generate-css && npm run generate-movegen-css && npm run generate-check-css && npm run generate-movescoring-css",
     "test": "node --test test/*.test.js",
     "start": "node src/driver.js",
     "tournament": "node scripts/tournament.js"

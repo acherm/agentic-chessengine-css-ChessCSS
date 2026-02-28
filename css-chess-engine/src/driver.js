@@ -65,7 +65,7 @@ async function main() {
       movetime = 0;
     }
 
-    const result = await search.findBestMove(chess, { depth, movetime });
+    const result = await search.findBestMove(chess.fen(), { depth, movetime });
 
     if (result.bestMove) {
       // bestMove is already in UCI format (from search.js)

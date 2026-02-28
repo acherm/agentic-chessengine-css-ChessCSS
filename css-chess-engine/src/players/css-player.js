@@ -20,7 +20,7 @@ class CssPlayer {
   }
 
   async pickMove(chess) {
-    const result = await this.search.findBestMove(chess, { depth: this.depth });
+    const result = await this.search.findBestMove(chess.fen(), { depth: this.depth });
     if (!result.bestMove) return null;
     // bestMove is already in UCI format (from search.js)
     return result.bestMove;

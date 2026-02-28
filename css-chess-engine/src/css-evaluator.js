@@ -3,27 +3,28 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
-const { fenToHtml, movesToHtml, gameHtml } = require('./board-renderer');
+const { gameHtml } = require('./board-renderer');
 const { GameState } = require('./game-state');
 
 const EVAL_CSS_PATH = path.resolve(__dirname, '..', 'css', 'eval.css');
-const MOVE_CSS_PATH = path.resolve(__dirname, '..', 'css', 'move-scoring.css');
 const MOVEGEN_CSS_PATH = path.resolve(__dirname, '..', 'css', 'move-generation.css');
 const CHECK_CSS_PATH = path.resolve(__dirname, '..', 'css', 'check-detection.css');
 
 // Cache CSS content at load time
 const evalCssContent = fs.readFileSync(EVAL_CSS_PATH, 'utf8');
-const moveCssContent = fs.readFileSync(MOVE_CSS_PATH, 'utf8');
 const movegenCssContent = fs.readFileSync(MOVEGEN_CSS_PATH, 'utf8');
 const checkCssContent = fs.readFileSync(CHECK_CSS_PATH, 'utf8');
+
+// MVV-LVA piece values for move scoring (same formula as dynamic-move-scoring.css)
+const PIECE_VALUES = { p: 100, n: 320, b: 330, r: 500, q: 900, k: 20000 };
+const PROMO_BONUS = { q: 9000, r: 5000, b: 3300, n: 3200 };
 
 class CssEvaluator {
   constructor() {
     this.browser = null;
-    this.evalPage = null;
-    this.movePage = null;
     this.moveGenPage = null;
     this.moveGenReady = false;
+    this._lastFen = null; // Position cache to skip redundant DOM updates
   }
 
   async init() {
@@ -31,26 +32,30 @@ class CssEvaluator {
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
-    this.evalPage = await this.browser.newPage();
-    this.movePage = await this.browser.newPage();
     await this.initMoveGenPage();
   }
 
   /**
-   * Initialize the move-generation page with all CSS loaded and all candidate
-   * move elements. This page persists; we mutate data-piece attributes to
-   * update the position instead of rebuilding HTML.
+   * Initialize the single page with all CSS loaded: move-generation,
+   * check-detection, and evaluation.
+   * All candidate move elements are pre-allocated. We mutate data-piece
+   * attributes to update the position instead of rebuilding HTML.
+   *
+   * Note: dynamic-move-scoring.css exists as a CSS proof-of-concept for
+   * MVV-LVA scoring via :has() rules, but its 768 :has() selectors cause
+   * a ~20x slowdown when evaluated across 1,880 candidate elements.
+   * We compute the identical scores in JS from the enriched move data instead.
    */
   async initMoveGenPage() {
     this.moveGenPage = await this.browser.newPage();
 
-    // Create initial position HTML with move-generation + check-detection CSS
     const initialState = GameState.fromFen('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
-    const combinedCss = movegenCssContent + '\n' + checkCssContent;
+    const combinedCss = movegenCssContent + '\n' + checkCssContent + '\n' + evalCssContent;
     const html = gameHtml(initialState, combinedCss);
 
     await this.moveGenPage.setContent(html, { waitUntil: 'domcontentloaded' });
     this.moveGenReady = true;
+    this._lastFen = initialState.toFen();
   }
 
   async close() {
@@ -61,67 +66,150 @@ class CssEvaluator {
   }
 
   /**
-   * Evaluate a position given as FEN.
+   * Evaluate a position using CSS.
    * Returns the evaluation in centipawns from white's perspective.
+   * @param {GameState} gameState
    */
-  async evaluate(fen) {
-    const html = fenToHtml(fen);
-    const htmlWithCss = html.replace('</head>', `<style>${evalCssContent}</style></head>`);
+  async evaluate(gameState) {
+    await this._updateMoveGenPosition(gameState);
 
-    await this.evalPage.setContent(htmlWithCss, { waitUntil: 'domcontentloaded' });
-
-    const evalValue = await this.evalPage.evaluate(() => {
-      const squares = document.querySelectorAll('.sq');
+    return await this.moveGenPage.evaluate(() => {
       let sum = 0;
-      for (const sq of squares) {
-        const val = getComputedStyle(sq).getPropertyValue('--piece-value').trim();
-        sum += parseInt(val, 10) || 0;
+      for (const sq of document.querySelectorAll('#board .sq')) {
+        sum += parseInt(getComputedStyle(sq).getPropertyValue('--piece-value').trim(), 10) || 0;
       }
       return sum;
     });
-
-    return evalValue;
   }
 
   /**
-   * Score moves for move ordering.
-   * Returns an array of { move, score } sorted by score descending.
+   * Combined evaluation for quiescence: check detection + position eval +
+   * legal capture generation in a SINGLE page.evaluate call.
+   * This eliminates redundant Puppeteer round-trips.
+   *
+   * @param {GameState} gameState
+   * @returns {{ inCheck: boolean, eval: number, captures: Array }}
    */
-  async scoreMoves(moves) {
-    if (moves.length === 0) return [];
+  async evaluateAndGetCaptures(gameState) {
+    await this._updateMoveGenPosition(gameState);
 
-    const html = movesToHtml(moves);
-    const htmlWithCss = html.replace('</head>', `<style>${moveCssContent}</style></head>`);
+    const result = await this.moveGenPage.evaluate((turn) => {
+      const board = document.getElementById('board');
+      const checkVar = turn === 'w' ? '--wk-in-check' : '--bk-in-check';
 
-    await this.movePage.setContent(htmlWithCss, { waitUntil: 'domcontentloaded' });
+      // 1. Check detection
+      const inCheck = getComputedStyle(board).getPropertyValue(checkVar).trim() === '1';
 
-    const scores = await this.movePage.evaluate(() => {
-      const moveEls = document.querySelectorAll('.move');
-      const results = [];
-      for (const el of moveEls) {
-        const idx = parseInt(el.getAttribute('data-idx'), 10);
-        const style = getComputedStyle(el);
-        const order = parseInt(style.order, 10) || 0;
-        results.push({ idx, score: order });
+      // 2. Position evaluation (sum of --piece-value on all squares)
+      let evalSum = 0;
+      for (const sq of document.querySelectorAll('#board .sq')) {
+        evalSum += parseInt(getComputedStyle(sq).getPropertyValue('--piece-value').trim(), 10) || 0;
       }
-      return results;
-    });
 
-    const scored = scores.map(s => ({
-      move: moves[s.idx],
-      score: s.score,
-    }));
+      // 3. Find pseudo-legal capture moves
+      const candidates = document.querySelectorAll('#candidates .move');
+      const pseudoLegalCaptures = [];
+      for (const el of candidates) {
+        const style = getComputedStyle(el);
+        if (style.getPropertyValue('--pseudo-legal').trim() !== '1') continue;
 
-    scored.sort((a, b) => b.score - a.score);
+        const to = el.getAttribute('data-to');
+        const toEl = board.querySelector(`.sq[data-sq="${to}"]`);
+        const toPiece = toEl ? toEl.getAttribute('data-piece') : 'empty';
+        const isCapture = toPiece !== 'empty';
+        const ep = el.getAttribute('data-ep');
+        const isEp = ep === 'true';
+        if (!isCapture && !isEp) continue;
 
-    return scored;
+        const move = {
+          from: el.getAttribute('data-from'),
+          to: to,
+        };
+        const promo = el.getAttribute('data-promotion');
+        const castle = el.getAttribute('data-castle');
+        if (promo) move.promotion = promo;
+        if (castle) move.castle = castle;
+        if (isEp) move.ep = true;
+        pseudoLegalCaptures.push(move);
+      }
+
+      // 4. Check legality of captures only (much fewer DOM mutations than full move list)
+      function getSqEl(sq) {
+        return board.querySelector(`.sq[data-sq="${sq}"]`);
+      }
+
+      const legalCaptures = [];
+      for (const move of pseudoLegalCaptures) {
+        const fromEl = getSqEl(move.from);
+        const toEl = getSqEl(move.to);
+        const origFrom = fromEl.getAttribute('data-piece');
+        const origTo = toEl.getAttribute('data-piece');
+        const savedExtras = [];
+        const movingPiece = origFrom;
+
+        // Apply move
+        if (move.promotion) {
+          toEl.setAttribute('data-piece', turn + move.promotion.toUpperCase());
+        } else {
+          toEl.setAttribute('data-piece', movingPiece);
+        }
+        fromEl.setAttribute('data-piece', 'empty');
+
+        if (move.ep) {
+          const epCaptureSq = move.to[0] + move.from[1];
+          const epEl = getSqEl(epCaptureSq);
+          savedExtras.push({ el: epEl, was: epEl.getAttribute('data-piece') });
+          epEl.setAttribute('data-piece', 'empty');
+        }
+
+        // Check legality
+        const moveInCheck = getComputedStyle(board).getPropertyValue(checkVar).trim() === '1';
+
+        // Undo
+        fromEl.setAttribute('data-piece', origFrom);
+        toEl.setAttribute('data-piece', origTo);
+        for (const s of savedExtras) {
+          s.el.setAttribute('data-piece', s.was);
+        }
+
+        if (!moveInCheck) {
+          if (origTo !== 'empty') {
+            move.captured = origTo;
+            move.capturedType = origTo[1].toLowerCase();
+          }
+          if (move.ep) {
+            move.captured = (turn === 'w' ? 'bP' : 'wP');
+            move.capturedType = 'p';
+          }
+          move.piece = origFrom;
+          move.pieceType = origFrom[1].toLowerCase();
+          legalCaptures.push(move);
+        }
+      }
+
+      return { inCheck, eval: evalSum, captures: legalCaptures };
+    }, gameState.turn);
+
+    // Compute MVV-LVA scores for captures
+    for (const move of result.captures) {
+      const captureValue = move.capturedType ? (PIECE_VALUES[move.capturedType] || 0) : 0;
+      const attackerValue = PIECE_VALUES[move.pieceType] || 0;
+      const promoBonus = move.promotion ? (PROMO_BONUS[move.promotion] || 0) : 0;
+      move.score = captureValue * 10 - attackerValue + promoBonus;
+    }
+
+    return result;
   }
 
   /**
    * Update the move-generation page DOM to match the given game state.
-   * Mutates data-piece on all 64 squares and updates game-level attributes.
+   * Skips the update if the position hasn't changed (position caching).
    */
   async _updateMoveGenPosition(gameState) {
+    const fen = gameState.toFen();
+    if (this._lastFen === fen) return;
+    this._lastFen = fen;
+
     await this.moveGenPage.evaluate((state) => {
       const game = document.getElementById('game');
       game.setAttribute('data-turn', state.turn);
@@ -154,9 +242,10 @@ class CssEvaluator {
    * 2. Read --pseudo-legal from all candidate move elements
    * 3. Filter for legality: for each pseudo-legal move, apply it in DOM,
    *    check if own king is in check via CSS, then undo.
+   * 4. Enrich legal moves with capture/piece info and MVV-LVA scores
    *
    * @param {GameState} gameState
-   * @returns {Array<{from, to, promotion?, castle?, ep?}>}
+   * @returns {Array<{from, to, promotion?, castle?, ep?, captured?, capturedType?, piece?, pieceType?, score}>}
    */
   async getLegalMoves(gameState) {
     await this._updateMoveGenPosition(gameState);
@@ -280,6 +369,8 @@ class CssEvaluator {
 
           // Already restored, skip normal undo
           if (!castleIllegal) {
+            move.piece = origFrom;
+            move.pieceType = origFrom[1].toLowerCase();
             legal.push(move);
           }
           continue;
@@ -293,12 +384,33 @@ class CssEvaluator {
         }
 
         if (!inCheck && !castleIllegal) {
+          // Enrich with capture and piece info
+          if (origTo !== 'empty') {
+            move.captured = origTo;
+            move.capturedType = origTo[1].toLowerCase();
+          }
+          if (move.ep) {
+            move.captured = (turn === 'w' ? 'bP' : 'wP');
+            move.capturedType = 'p';
+          }
+          move.piece = origFrom;
+          move.pieceType = origFrom[1].toLowerCase();
           legal.push(move);
         }
       }
 
       return legal;
     }, gameState.turn);
+
+    // Compute MVV-LVA scores from enriched data
+    // Same formula as dynamic-move-scoring.css:
+    //   order = capture_value * 10 - attacker_value + promo_bonus
+    for (const move of legalMoves) {
+      const captureValue = move.capturedType ? (PIECE_VALUES[move.capturedType] || 0) : 0;
+      const attackerValue = PIECE_VALUES[move.pieceType] || 0;
+      const promoBonus = move.promotion ? (PROMO_BONUS[move.promotion] || 0) : 0;
+      move.score = captureValue * 10 - attackerValue + promoBonus;
+    }
 
     return legalMoves;
   }

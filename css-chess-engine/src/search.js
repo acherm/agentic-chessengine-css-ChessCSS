@@ -1,8 +1,6 @@
 'use strict';
 
-const { Chess } = require('chess.js');
 const { GameState } = require('./game-state');
-const { orderMovesSimple } = require('./move-orderer');
 
 const INF = 999999;
 
@@ -17,13 +15,13 @@ class Search {
 
   /**
    * Find the best move for the current position.
-   * Uses CSS for move generation at root and interior nodes.
-   * Uses chess.js for make/unmake moves (Phase A hybrid).
-   * @param {Chess} chess - chess.js instance with current position
+   * Uses CSS for move generation, evaluation, and move ordering.
+   * Uses GameState for make/unmake moves — no chess.js dependency.
+   * @param {string} fen - FEN string of the current position
    * @param {object} options - { depth, movetime }
    * @returns {{ bestMove: string|null, score: number, nodes: number, depth: number }}
    */
-  async findBestMove(chess, options = {}) {
+  async findBestMove(fen, options = {}) {
     const depth = options.depth || 2;
     const movetime = options.movetime || 0;
 
@@ -32,8 +30,7 @@ class Search {
     this.timeLimit = movetime;
     this.aborted = false;
 
-    // Get legal moves from CSS
-    const gameState = GameState.fromFen(chess.fen());
+    const gameState = GameState.fromFen(fen);
     const cssMoves = await this.evaluator.getLegalMoves(gameState);
 
     if (cssMoves.length === 0) return { bestMove: null, score: 0, nodes: 0, depth: 0 };
@@ -42,41 +39,8 @@ class Search {
       return { bestMove: uci, score: 0, nodes: 1, depth: 1 };
     }
 
-    // Convert CSS moves to chess.js verbose moves for move ordering
-    const chessJsMoves = chess.moves({ verbose: true });
-    const cssMoveKeys = new Set(cssMoves.map(m =>
-      m.from + m.to + (m.promotion || '') + (m.castle || '') + (m.ep ? 'ep' : '')
-    ));
-
-    // Map CSS moves to chess.js move objects for scoring and make/unmake
-    const matchedMoves = [];
-    for (const cssMove of cssMoves) {
-      const match = chessJsMoves.find(m => {
-        if (m.from !== cssMove.from || m.to !== cssMove.to) return false;
-        if (cssMove.promotion && m.promotion !== cssMove.promotion) return false;
-        if (!cssMove.promotion && m.promotion) return false;
-        return true;
-      });
-      if (match) {
-        matchedMoves.push({ css: cssMove, chessJs: match });
-      }
-    }
-
-    if (matchedMoves.length === 0) {
-      // Fallback to chess.js moves if CSS matching fails
-      const moves = chess.moves({ verbose: true });
-      if (moves.length === 0) return { bestMove: null, score: 0, nodes: 0, depth: 0 };
-      return { bestMove: moves[0].san, score: 0, nodes: 1, depth: 1 };
-    }
-
-    // Use CSS move scoring for root move ordering
-    let orderedMoves;
-    try {
-      const scored = await this.evaluator.scoreMoves(matchedMoves.map(m => m.chessJs));
-      orderedMoves = scored.map(s => s.move);
-    } catch {
-      orderedMoves = orderMovesSimple(matchedMoves.map(m => m.chessJs));
-    }
+    // Sort by CSS score (MVV-LVA + promotion bonuses)
+    const orderedMoves = cssMoves.slice().sort((a, b) => b.score - a.score);
 
     let bestMove = orderedMoves[0];
     let bestScore = -INF;
@@ -90,12 +54,12 @@ class Search {
       for (const move of orderedMoves) {
         if (this.isTimeUp()) break;
 
-        chess.move(move.san);
+        const undo = gameState.applyMove(move);
         this.nodes++;
 
-        const score = -(await this.negamax(chess, d - 1, -INF, -currentScore));
+        const score = -(await this.negamax(gameState, d - 1, -INF, -currentScore));
 
-        chess.undo();
+        gameState.undoMove(undo);
 
         if (score > currentScore) {
           currentScore = score;
@@ -109,10 +73,19 @@ class Search {
         completedDepth = d;
 
         this.sendInfo(d, bestScore, this.nodes);
+
+        // Reorder: put best move first for next iteration (improves alpha-beta pruning)
+        const bestIdx = orderedMoves.indexOf(currentBest);
+        if (bestIdx > 0) {
+          orderedMoves.splice(bestIdx, 1);
+          orderedMoves.unshift(currentBest);
+        }
+
+        // Early termination if mate found
+        if (bestScore >= INF - 100) break;
       }
     }
 
-    // Convert SAN to UCI
     const uciMove = bestMove.from + bestMove.to + (bestMove.promotion || '');
 
     return {
@@ -125,46 +98,38 @@ class Search {
 
   /**
    * Negamax alpha-beta search.
-   * Uses CSS for move generation at interior nodes.
-   * Returns score from the perspective of the side to move.
+   * Uses CSS for move generation and game-over detection.
+   * At depth 0, skips expensive getLegalMoves and goes directly to quiescence.
    */
-  async negamax(chess, depth, alpha, beta) {
+  async negamax(gameState, depth, alpha, beta) {
     if (this.isTimeUp()) return 0;
 
-    // Terminal node checks
-    if (chess.isCheckmate()) return -INF + 1;
-    if (chess.isDraw() || chess.isStalemate() || chess.isThreefoldRepetition() || chess.isInsufficientMaterial()) return 0;
+    if (gameState.halfmoveClock >= 100) return 0; // 50-move rule
 
+    // At depth 0, go directly to quiescence (which handles checkmate detection)
     if (depth <= 0) {
-      return await this.quiescence(chess, alpha, beta);
+      return await this.quiescence(gameState, alpha, beta);
     }
 
-    // Get legal moves from CSS
-    const gameState = GameState.fromFen(chess.fen());
+    // Get legal moves from CSS (only at depth > 0)
     const cssMoves = await this.evaluator.getLegalMoves(gameState);
 
-    // Map CSS moves to chess.js moves for make/unmake
-    const chessJsMoves = chess.moves({ verbose: true });
-    const mappedMoves = [];
-    for (const cssMove of cssMoves) {
-      const match = chessJsMoves.find(m => {
-        if (m.from !== cssMove.from || m.to !== cssMove.to) return false;
-        if (cssMove.promotion && m.promotion !== cssMove.promotion) return false;
-        if (!cssMove.promotion && m.promotion) return false;
-        return true;
-      });
-      if (match) mappedMoves.push(match);
+    // Game-over detection via CSS
+    if (cssMoves.length === 0) {
+      const inCheck = await this.evaluator.isInCheck(gameState);
+      return inCheck ? (-INF + 1) : 0; // checkmate vs stalemate
     }
 
-    const moves = orderMovesSimple(mappedMoves);
+    // Sort by CSS score
+    const moves = cssMoves.slice().sort((a, b) => b.score - a.score);
 
     for (const move of moves) {
-      chess.move(move.san);
+      const undo = gameState.applyMove(move);
       this.nodes++;
 
-      const score = -(await this.negamax(chess, depth - 1, -beta, -alpha));
+      const score = -(await this.negamax(gameState, depth - 1, -beta, -alpha));
 
-      chess.undo();
+      gameState.undoMove(undo);
 
       if (this.isTimeUp()) return 0;
 
@@ -177,31 +142,53 @@ class Search {
 
   /**
    * Quiescence search — only consider captures to avoid horizon effect.
+   * Uses combined evaluateAndGetCaptures for efficiency (single Puppeteer call).
    */
-  async quiescence(chess, alpha, beta) {
+  async quiescence(gameState, alpha, beta) {
     if (this.isTimeUp()) return 0;
 
-    // Stand-pat score from CSS evaluation
-    const fen = chess.fen();
-    let standPat = await this.evaluator.evaluate(fen);
+    // Combined: check detection + eval + capture generation in one page.evaluate
+    const { inCheck, eval: evalValue, captures } = await this.evaluator.evaluateAndGetCaptures(gameState);
 
-    // Negate if black to move (CSS eval is from white's perspective)
-    if (chess.turn() === 'b') standPat = -standPat;
+    // If in check with no captures, might be checkmate — need full move list
+    if (inCheck) {
+      const allMoves = await this.evaluator.getLegalMoves(gameState);
+      if (allMoves.length === 0) return -INF + 1; // checkmate
+
+      // In check — search all evasions (check extension)
+      for (const move of allMoves) {
+        const undo = gameState.applyMove(move);
+        this.nodes++;
+
+        const score = -(await this.quiescence(gameState, -beta, -alpha));
+
+        gameState.undoMove(undo);
+
+        if (this.isTimeUp()) return 0;
+
+        if (score >= beta) return beta;
+        if (score > alpha) alpha = score;
+      }
+      return alpha;
+    }
+
+    // Stand-pat score (negate for black since CSS eval is from white's perspective)
+    let standPat = evalValue;
+    if (gameState.turn === 'b') standPat = -standPat;
 
     if (standPat >= beta) return beta;
     if (standPat > alpha) alpha = standPat;
 
-    // Only consider captures — use chess.js here for speed in quiescence
-    const captures = chess.moves({ verbose: true }).filter(m => m.captured);
-    const orderedCaptures = orderMovesSimple(captures);
+    // Sort captures by score (MVV-LVA)
+    const orderedCaptures = captures.slice().sort((a, b) => b.score - a.score);
 
     for (const move of orderedCaptures) {
-      chess.move(move.san);
+      const undo = gameState.applyMove(move);
       this.nodes++;
 
-      const score = -(await this.quiescence(chess, -beta, -alpha));
+      const score = -(await this.quiescence(gameState, -beta, -alpha));
 
-      chess.undo();
+      gameState.undoMove(undo);
 
       if (this.isTimeUp()) return 0;
 
