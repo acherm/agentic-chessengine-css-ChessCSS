@@ -1,0 +1,119 @@
+/* Move scoring CSS — all chess move-ordering intelligence lives here.
+ * Each .move element gets a score via the `order` property.
+ * The driver reads `getComputedStyle(el).order` to rank moves.
+ */
+
+/* Default: all bonuses start at 0 */
+.move {
+  --capture-bonus: 0;
+  --destination-bonus: 0;
+  --check-bonus: 0;
+  --promotion-bonus: 0;
+  --castle-bonus: 0;
+  display: block;
+}
+
+/* ==========================================================================
+   MVV-LVA Capture Scoring
+   Score = victim_value * 10 - attacker_value
+   Higher score = better capture (capture valuable piece with cheap piece)
+   ========================================================================== */
+
+/* Pawn captures */
+.move[data-piece$="P"][data-captured="P"] { --capture-bonus: 900; }
+.move[data-piece$="P"][data-captured="N"] { --capture-bonus: 3100; }
+.move[data-piece$="P"][data-captured="B"] { --capture-bonus: 3200; }
+.move[data-piece$="P"][data-captured="R"] { --capture-bonus: 4900; }
+.move[data-piece$="P"][data-captured="Q"] { --capture-bonus: 8900; }
+
+/* Knight captures */
+.move[data-piece$="N"][data-captured="P"] { --capture-bonus: 680; }
+.move[data-piece$="N"][data-captured="N"] { --capture-bonus: 2880; }
+.move[data-piece$="N"][data-captured="B"] { --capture-bonus: 2980; }
+.move[data-piece$="N"][data-captured="R"] { --capture-bonus: 4680; }
+.move[data-piece$="N"][data-captured="Q"] { --capture-bonus: 8680; }
+
+/* Bishop captures */
+.move[data-piece$="B"][data-captured="P"] { --capture-bonus: 670; }
+.move[data-piece$="B"][data-captured="N"] { --capture-bonus: 2870; }
+.move[data-piece$="B"][data-captured="B"] { --capture-bonus: 2970; }
+.move[data-piece$="B"][data-captured="R"] { --capture-bonus: 4670; }
+.move[data-piece$="B"][data-captured="Q"] { --capture-bonus: 8670; }
+
+/* Rook captures */
+.move[data-piece$="R"][data-captured="P"] { --capture-bonus: 500; }
+.move[data-piece$="R"][data-captured="N"] { --capture-bonus: 2700; }
+.move[data-piece$="R"][data-captured="B"] { --capture-bonus: 2800; }
+.move[data-piece$="R"][data-captured="R"] { --capture-bonus: 4500; }
+.move[data-piece$="R"][data-captured="Q"] { --capture-bonus: 8500; }
+
+/* Queen captures */
+.move[data-piece$="Q"][data-captured="P"] { --capture-bonus: 100; }
+.move[data-piece$="Q"][data-captured="N"] { --capture-bonus: 2300; }
+.move[data-piece$="Q"][data-captured="B"] { --capture-bonus: 2400; }
+.move[data-piece$="Q"][data-captured="R"] { --capture-bonus: 4100; }
+.move[data-piece$="Q"][data-captured="Q"] { --capture-bonus: 8100; }
+
+/* King captures */
+.move[data-piece$="K"][data-captured="P"] { --capture-bonus: 800; }
+.move[data-piece$="K"][data-captured="N"] { --capture-bonus: 3000; }
+.move[data-piece$="K"][data-captured="B"] { --capture-bonus: 3100; }
+.move[data-piece$="K"][data-captured="R"] { --capture-bonus: 4800; }
+.move[data-piece$="K"][data-captured="Q"] { --capture-bonus: 8800; }
+
+/* ==========================================================================
+   Destination Square Bonuses
+   Central squares get a bonus to encourage central play
+   ========================================================================== */
+
+/* Inner center */
+.move[data-to="d4"] { --destination-bonus: 30; }
+.move[data-to="e4"] { --destination-bonus: 30; }
+.move[data-to="d5"] { --destination-bonus: 30; }
+.move[data-to="e5"] { --destination-bonus: 30; }
+
+/* Extended center */
+.move[data-to="c3"] { --destination-bonus: 20; }
+.move[data-to="d3"] { --destination-bonus: 20; }
+.move[data-to="e3"] { --destination-bonus: 20; }
+.move[data-to="f3"] { --destination-bonus: 20; }
+.move[data-to="c4"] { --destination-bonus: 20; }
+.move[data-to="f4"] { --destination-bonus: 20; }
+.move[data-to="c5"] { --destination-bonus: 20; }
+.move[data-to="f5"] { --destination-bonus: 20; }
+.move[data-to="c6"] { --destination-bonus: 20; }
+.move[data-to="d6"] { --destination-bonus: 20; }
+.move[data-to="e6"] { --destination-bonus: 20; }
+.move[data-to="f6"] { --destination-bonus: 20; }
+
+/* ==========================================================================
+   Special Move Bonuses
+   ========================================================================== */
+
+/* Check bonus */
+.move[data-check="true"] { --check-bonus: 50; }
+.move[data-checkmate="true"] { --check-bonus: 100000; }
+
+/* Promotion bonus */
+.move[data-promotion="Q"] { --promotion-bonus: 9000; }
+.move[data-promotion="R"] { --promotion-bonus: 5000; }
+.move[data-promotion="B"] { --promotion-bonus: 3300; }
+.move[data-promotion="N"] { --promotion-bonus: 3200; }
+
+/* Castling bonus */
+.move[data-castle="true"] { --castle-bonus: 60; }
+
+/* ==========================================================================
+   Combined Score via `order` property
+   CSS calc() combines all bonuses. `order` accepts integer values.
+   ========================================================================== */
+
+.move {
+  order: calc(
+    var(--capture-bonus) +
+    var(--destination-bonus) +
+    var(--check-bonus) +
+    var(--promotion-bonus) +
+    var(--castle-bonus)
+  );
+}

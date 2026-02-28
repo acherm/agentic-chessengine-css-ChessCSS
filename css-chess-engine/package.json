@@ -1,0 +1,22 @@
+{
+  "name": "css-chess-engine",
+  "version": "1.0.0",
+  "main": "src/driver.js",
+  "scripts": {
+    "generate-css": "node scripts/generate-css.js",
+    "generate-movegen-css": "node scripts/generate-movegen-css.js",
+    "generate-check-css": "node scripts/generate-check-css.js",
+    "generate-all-css": "npm run generate-css && npm run generate-movegen-css && npm run generate-check-css",
+    "test": "node --test test/*.test.js",
+    "start": "node src/driver.js",
+    "tournament": "node scripts/tournament.js"
+  },
+  "keywords": ["chess", "css", "engine"],
+  "author": "",
+  "license": "ISC",
+  "description": "A chess engine where all evaluation intelligence lives in pure CSS",
+  "dependencies": {
+    "chess.js": "^1.4.0",
+    "puppeteer": "^24.37.5"
+  }
+}
