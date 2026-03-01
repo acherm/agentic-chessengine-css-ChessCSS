@@ -94,17 +94,6 @@ body {
 /* Check highlight — driven by data-in-check on #game */
 #game[data-in-check="w"] #board .sq[data-piece="wK"] { background: #ff6b6b !important; }
 #game[data-in-check="b"] #board .sq[data-piece="bK"] { background: #ff6b6b !important; }
-#board .sq.legal-target::after {
-  content: '';
-  position: absolute;
-  width: 26%;
-  height: 26%;
-  background: rgba(0, 0, 0, 0.25);
-  border-radius: 50%;
-}
-#board .sq.legal-capture {
-  box-shadow: inset 0 0 0 4px rgba(0, 0, 0, 0.3);
-}
 #board .sq:hover:not(.selected) {
   filter: brightness(1.1);
 }
@@ -4754,17 +4743,13 @@ function selectSquare(sq) {
   currentLegalMoves = getLegalMoves();
 
   sqElements.get(sq).classList.add('selected');
-
-  for (const m of currentLegalMoves.filter(m => m.from === sq)) {
-    sqElements.get(m.to).classList.add(m.captured ? 'legal-capture' : 'legal-target');
-  }
 }
 
 // ── clearSelection() ──
 function clearSelection() {
   selectedSquare = null;
   for (const el of sqElements.values()) {
-    el.classList.remove('selected', 'legal-target', 'legal-capture');
+    el.classList.remove('selected');
   }
 }
 

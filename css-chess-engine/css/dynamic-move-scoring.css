@@ -1,20 +1,122 @@
 /* Auto-generated dynamic move scoring CSS */
-/* Uses :has() to read board state for MVV-LVA scoring */
+/* Uses :has() to read board state for MVV-LVA + positional scoring */
 
 .move {
   --capture-value: 0;
   --attacker-value: 0;
   --promo-bonus: 0;
-  order: calc(var(--capture-value) * 10 - var(--attacker-value) + var(--promo-bonus));
+  --dest-bonus: 0;
+  --develop-bonus: 0;
+  --castle-bonus: 0;
+  order: calc(
+    max(var(--capture-value) * 2 - var(--attacker-value), 0)
+    + var(--promo-bonus)
+    + var(--dest-bonus)
+    + var(--develop-bonus)
+    + var(--castle-bonus)
+  );
 }
 
-/* Promotion bonuses */
+/* ── Promotion bonuses ── */
 .move[data-promotion="q"] { --promo-bonus: 9000; }
 .move[data-promotion="r"] { --promo-bonus: 5000; }
 .move[data-promotion="b"] { --promo-bonus: 3300; }
 .move[data-promotion="n"] { --promo-bonus: 3200; }
 
-/* Capture value: value of piece on target square (64 sq × 6 types = 384 rules) */
+/* ── Castling bonus ── */
+.move[data-castle] { --castle-bonus: 60; }
+
+/* ── Destination square bonuses (centrality, unique per square) ── */
+.move[data-to="a2"] { --dest-bonus: 1; }
+.move[data-to="a3"] { --dest-bonus: 2; }
+.move[data-to="a4"] { --dest-bonus: 4; }
+.move[data-to="a5"] { --dest-bonus: 3; }
+.move[data-to="a6"] { --dest-bonus: 2; }
+.move[data-to="a7"] { --dest-bonus: 1; }
+.move[data-to="b1"] { --dest-bonus: 1; }
+.move[data-to="b2"] { --dest-bonus: 3; }
+.move[data-to="b3"] { --dest-bonus: 7; }
+.move[data-to="b4"] { --dest-bonus: 9; }
+.move[data-to="b5"] { --dest-bonus: 8; }
+.move[data-to="b6"] { --dest-bonus: 6; }
+.move[data-to="b7"] { --dest-bonus: 3; }
+.move[data-to="b8"] { --dest-bonus: 1; }
+.move[data-to="c1"] { --dest-bonus: 2; }
+.move[data-to="c2"] { --dest-bonus: 6; }
+.move[data-to="c3"] { --dest-bonus: 16; }
+.move[data-to="c4"] { --dest-bonus: 22; }
+.move[data-to="c5"] { --dest-bonus: 21; }
+.move[data-to="c6"] { --dest-bonus: 15; }
+.move[data-to="c7"] { --dest-bonus: 5; }
+.move[data-to="c8"] { --dest-bonus: 2; }
+.move[data-to="d1"] { --dest-bonus: 4; }
+.move[data-to="d2"] { --dest-bonus: 9; }
+.move[data-to="d3"] { --dest-bonus: 23; }
+.move[data-to="d4"] { --dest-bonus: 31; }
+.move[data-to="d5"] { --dest-bonus: 30; }
+.move[data-to="d6"] { --dest-bonus: 22; }
+.move[data-to="d7"] { --dest-bonus: 8; }
+.move[data-to="d8"] { --dest-bonus: 3; }
+.move[data-to="e1"] { --dest-bonus: 3; }
+.move[data-to="e2"] { --dest-bonus: 8; }
+.move[data-to="e3"] { --dest-bonus: 22; }
+.move[data-to="e4"] { --dest-bonus: 30; }
+.move[data-to="e5"] { --dest-bonus: 31; }
+.move[data-to="e6"] { --dest-bonus: 23; }
+.move[data-to="e7"] { --dest-bonus: 9; }
+.move[data-to="e8"] { --dest-bonus: 4; }
+.move[data-to="f1"] { --dest-bonus: 2; }
+.move[data-to="f2"] { --dest-bonus: 5; }
+.move[data-to="f3"] { --dest-bonus: 15; }
+.move[data-to="f4"] { --dest-bonus: 21; }
+.move[data-to="f5"] { --dest-bonus: 22; }
+.move[data-to="f6"] { --dest-bonus: 16; }
+.move[data-to="f7"] { --dest-bonus: 6; }
+.move[data-to="f8"] { --dest-bonus: 2; }
+.move[data-to="g1"] { --dest-bonus: 1; }
+.move[data-to="g2"] { --dest-bonus: 3; }
+.move[data-to="g3"] { --dest-bonus: 6; }
+.move[data-to="g4"] { --dest-bonus: 8; }
+.move[data-to="g5"] { --dest-bonus: 9; }
+.move[data-to="g6"] { --dest-bonus: 7; }
+.move[data-to="g7"] { --dest-bonus: 3; }
+.move[data-to="g8"] { --dest-bonus: 1; }
+.move[data-to="h2"] { --dest-bonus: 1; }
+.move[data-to="h3"] { --dest-bonus: 2; }
+.move[data-to="h4"] { --dest-bonus: 3; }
+.move[data-to="h5"] { --dest-bonus: 4; }
+.move[data-to="h6"] { --dest-bonus: 2; }
+.move[data-to="h7"] { --dest-bonus: 1; }
+
+/* ── Development bonuses: encourage piece activity ── */
+
+/* Knights off starting squares */
+#game:has(.sq[data-sq="b1"][data-piece="wN"]) .move[data-from="b1"] { --develop-bonus: 35; }
+#game:has(.sq[data-sq="g1"][data-piece="wN"]) .move[data-from="g1"] { --develop-bonus: 35; }
+#game:has(.sq[data-sq="b8"][data-piece="bN"]) .move[data-from="b8"] { --develop-bonus: 35; }
+#game:has(.sq[data-sq="g8"][data-piece="bN"]) .move[data-from="g8"] { --develop-bonus: 35; }
+
+/* Bishops off starting squares */
+#game:has(.sq[data-sq="c1"][data-piece="wB"]) .move[data-from="c1"] { --develop-bonus: 35; }
+#game:has(.sq[data-sq="f1"][data-piece="wB"]) .move[data-from="f1"] { --develop-bonus: 35; }
+#game:has(.sq[data-sq="c8"][data-piece="bB"]) .move[data-from="c8"] { --develop-bonus: 35; }
+#game:has(.sq[data-sq="f8"][data-piece="bB"]) .move[data-from="f8"] { --develop-bonus: 35; }
+
+/* Central pawns: small bonus (pieces should develop first) */
+#game:has(.sq[data-sq="d2"][data-piece="wP"]) .move[data-from="d2"] { --develop-bonus: 10; }
+#game:has(.sq[data-sq="e2"][data-piece="wP"]) .move[data-from="e2"] { --develop-bonus: 10; }
+#game:has(.sq[data-sq="d7"][data-piece="bP"]) .move[data-from="d7"] { --develop-bonus: 10; }
+#game:has(.sq[data-sq="e7"][data-piece="bP"]) .move[data-from="e7"] { --develop-bonus: 10; }
+
+/* Discourage early king moves (except castling) */
+#game:has(.sq[data-sq="e1"][data-piece="wK"]) .move[data-from="e1"]:not([data-castle]) { --develop-bonus: -15; }
+#game:has(.sq[data-sq="e8"][data-piece="bK"]) .move[data-from="e8"]:not([data-castle]) { --develop-bonus: -15; }
+
+/* Discourage early queen moves from starting square */
+#game:has(.sq[data-sq="d1"][data-piece="wQ"]) .move[data-from="d1"] { --develop-bonus: -8; }
+#game:has(.sq[data-sq="d8"][data-piece="bQ"]) .move[data-from="d8"] { --develop-bonus: -8; }
+
+/* ── Capture value: piece on target square (64 sq × 6 types = 384 rules) ── */
 #game:has(.sq[data-sq="a1"]:is([data-piece="wP"],[data-piece="bP"])) .move[data-to="a1"] { --capture-value: 100; }
 #game:has(.sq[data-sq="a1"]:is([data-piece="wN"],[data-piece="bN"])) .move[data-to="a1"] { --capture-value: 320; }
 #game:has(.sq[data-sq="a1"]:is([data-piece="wB"],[data-piece="bB"])) .move[data-to="a1"] { --capture-value: 330; }
@@ -400,7 +502,7 @@
 #game:has(.sq[data-sq="h8"]:is([data-piece="wQ"],[data-piece="bQ"])) .move[data-to="h8"] { --capture-value: 900; }
 #game:has(.sq[data-sq="h8"]:is([data-piece="wK"],[data-piece="bK"])) .move[data-to="h8"] { --capture-value: 20000; }
 
-/* Attacker value: value of piece on source square (64 sq × 6 types = 384 rules) */
+/* ── Attacker value: piece on source square (64 sq × 6 types = 384 rules) ── */
 #game:has(.sq[data-sq="a1"]:is([data-piece="wP"],[data-piece="bP"])) .move[data-from="a1"] { --attacker-value: 100; }
 #game:has(.sq[data-sq="a1"]:is([data-piece="wN"],[data-piece="bN"])) .move[data-from="a1"] { --attacker-value: 320; }
 #game:has(.sq[data-sq="a1"]:is([data-piece="wB"],[data-piece="bB"])) .move[data-from="a1"] { --attacker-value: 330; }
