@@ -7,10 +7,12 @@
     "generate-movegen-css": "node scripts/generate-movegen-css.js",
     "generate-check-css": "node scripts/generate-check-css.js",
     "generate-movescoring-css": "node scripts/generate-movescoring-css.js",
-    "generate-all-css": "npm run generate-css && npm run generate-movegen-css && npm run generate-check-css && npm run generate-movescoring-css",
+    "generate-legality-css": "sass scss/legality.scss css/legality.css --no-source-map --style=expanded",
+    "generate-all-css": "npm run generate-css && npm run generate-movegen-css && npm run generate-check-css && npm run generate-movescoring-css && npm run generate-legality-css",
     "test": "node --test test/*.test.js",
     "start": "node src/driver.js",
-    "tournament": "node scripts/tournament.js"
+    "tournament": "node scripts/tournament.js",
+    "play": "npx http-server . -p 8080 -o play.html"
   },
   "keywords": ["chess", "css", "engine"],
   "author": "",
@@ -19,5 +21,9 @@
   "dependencies": {
     "chess.js": "^1.4.0",
     "puppeteer": "^24.37.5"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1",
+    "sass": "^1.86.0"
   }
 }
