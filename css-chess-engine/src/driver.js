@@ -6,8 +6,6 @@ const { UciProtocol } = require('./uci');
 const { CssEvaluator } = require('./css-evaluator');
 const { Search } = require('./search');
 
-const DEFAULT_DEPTH = 2;
-
 async function main() {
   const uci = new UciProtocol();
   const evaluator = new CssEvaluator();
@@ -42,33 +40,10 @@ async function main() {
       initialized = true;
     }
 
-    // Calculate time management
-    let depth = options.depth || DEFAULT_DEPTH;
-    let movetime = options.movetime || 0;
-
-    if (!options.depth && !options.movetime && !options.infinite) {
-      const isWhite = chess.turn() === 'w';
-      const timeLeft = isWhite ? (options.wtime || 60000) : (options.btime || 60000);
-      const increment = isWhite ? (options.winc || 0) : (options.binc || 0);
-      const movestogo = options.movestogo || 30;
-
-      movetime = Math.min(
-        Math.floor(timeLeft / movestogo + increment * 0.8),
-        Math.floor(timeLeft * 0.5)
-      );
-      movetime = Math.max(movetime, 100);
-      depth = 10;
-    }
-
-    if (options.infinite) {
-      depth = options.depth || 4;
-      movetime = 0;
-    }
-
-    const result = await search.findBestMove(chess.fen(), { depth, movetime });
+    // Greedy search: depth is always 1, no time management needed
+    const result = await search.findBestMove(chess.fen(), { depth: 1 });
 
     if (result.bestMove) {
-      // bestMove is already in UCI format (from search.js)
       uci.sendBestMove(result.bestMove);
     } else {
       uci.sendBestMove('0000');
@@ -76,7 +51,7 @@ async function main() {
   });
 
   uci.on('stop', () => {
-    if (search) search.aborted = true;
+    // No-op: greedy search completes in one pass
   });
 
   uci.on('quit', async () => {
