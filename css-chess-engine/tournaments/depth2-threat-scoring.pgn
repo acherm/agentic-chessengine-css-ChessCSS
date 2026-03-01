@@ -1,0 +1,108 @@
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.01"]
+[Round "1"]
+[White "CSSEngine-d2"]
+[Black "Random"]
+[Result "1/2-1/2"]
+
+1. Nc3 Nf6 2. Nf3 Ng4 3. d3 h6 4. Bf4 a6 5. e4 a5 6. Nd5 d6 7. Be2 Na6 8. O-O Qd7 9. c4 Nxf2 10. Rxf2 b5 11. cxb5 Rh7 12. bxa6 Bxa6 13. d4 Qf5 14. exf5 Bb5 15. Bxb5+ c6 16. Nc3 a4 17. Ne4 e6 18. fxe6 Ra7 19. exf7+ Rxf7 20. Nc3 Rb7 21. Ne4 Rc7 22. Nc3 g6 23. Ne4 Bg7 24. Nc3 Ke7 25. Ne4 h5 26. Nc3 Rc8 27. Ne4 d5 28. Ne5 Rh6 29. Bxh6 Rg8 30. Bxg7 Ke6 31. Nc5+ Ke7 32. Nf3 cxb5 33. Ne5 Rf8 34. Bxf8+ Kd8 35. Nf3 Kc7 36. Ne5 b4 37. Nf3 Kc6 38. Ne5+ Kb6 39. Nf3 Kc7 40. Ne5 Kb8 41. Nf3 Kc8 42. Ne5 a3 43. bxa3 Kc7 44. axb4 h4 45. Nf3 h3 46. gxh3 Kb8 47. Ne5 Ka8 48. Ncd3 g5 49. Nc5 g4 50. hxg4 Ka7 51. Rf5 Kb6 52. Ncd3 Ka6 53. Nc5+ Ka7 54. Ncd3 Ka8 55. Nc5 Ka7 56. Ncd3 Kb6 57. Nc5 Kb5 58. Ncd3 Kb6 59. Nc5 Ka7 1/2-1/2
+
+
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.01"]
+[Round "2"]
+[White "Random"]
+[Black "CSSEngine-d2"]
+[Result "1/2-1/2"]
+
+1. h3 Nf6 2. h4 Nc6 3. d3 e6 4. Kd2 Bd6 5. c4 O-O 6. e3 Ne5 7. a3 c6 8. Qc2 Nxd3 9. b3 Nxc1 10. Be2 Nxe2 11. Rh3 Nxg1 12. c5 Nxh3 13. Ke1 Nd5 14. Kd1 f5 15. Qd3 Nf6 16. Qc2 Nd5 17. Ke2 Nf6 18. a4 Nd5 19. cxd6 Nf6 20. f3 Nd5 21. Qxf5 exf5 22. b4 Nf6 23. gxh3 Nd5 24. a5 Nf6 25. Kf2 Nd5 26. Ke1 Nf6 27. Ra4 Nd5 28. Ra1 Nf6 29. e4 fxe4 30. Nc3 exf3 31. Kf1 g6 32. Ra2 Nh5 33. Kf2 Rf5 34. Kf1 Re5 35. a6 bxa6 36. Kf2 Bb7 37. Rb2 Re6 38. Na4 Re5 39. Kf1 Rd5 40. Kg1 Rf5 41. Kf1 Rd5 42. Nb6 axb6 43. Rb3 Rf5 44. Re3 Rd5 45. Re8+ Qxe8 46. Kg1 Qe6 47. Kf1 Rf5 48. Kg1 Qd5 49. b5 axb5 50. Kh1 Qe6 51. Kg1 Qd5 52. Kf1 Qe6 53. Kg1 Qd5 1/2-1/2
+
+
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.01"]
+[Round "3"]
+[White "CSSEngine-d2"]
+[Black "Random"]
+[Result "1-0"]
+
+1. Nc3 Na6 2. Nf3 b5 3. d3 f5 4. Be3 g5 5. d4 Bh6 6. Ne5 Nb4 7. Nf3 c6 8. Ne5 Nd5 9. Nxd5 g4 10. Bxh6 Qc7 11. Nxc7+ Kd8 12. Nxa8 c5 13. dxc5 Ke8 14. e3 g3 15. fxg3 e6 16. Bd3 Bb7 17. O-O Bd5 18. Rf4 Bxa8 19. Rd4 Ne7 20. Rd6 Nd5 21. Rxd5 Bb7 22. Rd4 Ba8 23. Rd6 a5 24. Rd4 d5 25. cxd6 b4 26. Rf4 Be4 27. Bxe4 Rf8 28. Bxf8 h5 29. Qd4 Kxf8 30. Qd3 h4 31. gxh4 Kg7 32. Qd4 Kf6 33. Qd3 b3 34. axb3 Kxe5 35. Qd4# 1-0
+
+
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.01"]
+[Round "4"]
+[White "Random"]
+[Black "CSSEngine-d2"]
+[Result "1/2-1/2"]
+
+1. b4 Nf6 2. a4 Nc6 3. g3 e6 4. Nc3 Bd6 5. Nh3 O-O 6. Bb2 Nd4 7. Nf4 Bxf4 8. Qb1 d6 9. g4 e5 10. d3 Be6 11. Na2 Bxa2 12. Bg2 Bxb1 13. Bd5 Nxd5 14. e4 Ne6 15. Ba3 Nd4 16. Bb2 Ne6 17. Bc1 Bxc1 18. Rxb1 Nd4 19. Kf1 Ne6 20. a5 Nd4 21. f3 Ne6 22. b5 Nd4 23. b6 axb6 24. h4 bxa5 25. g5 Ne6 26. c3 Bf4 27. Rh3 c5 28. Rg3 Bxg3 29. Rb6 Nxb6 30. Kg2 Nf4+ 31. Kg1 Ne6 32. g6 fxg6 33. Kf1 Nf4 34. h5 gxh5 35. c4 Rf6 36. d4 cxd4 37. Kg1 d3 38. Kh1 Ne2 39. c5 dxc5 40. f4 exf4 41. Kg2 Nd4 42. Kf1 Nc6 43. Kg1 Nd4 44. e5 Nd5 45. Kf1 Ne3+ 46. Kg1 Nc6 47. exf6 gxf6 48. Kh1 Nd4 49. Kg1 Nc6 50. Kh1 Nd4 51. Kg1 Nc6 1/2-1/2
+
+
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.01"]
+[Round "5"]
+[White "CSSEngine-d2"]
+[Black "Random"]
+[Result "1/2-1/2"]
+
+1. Nc3 g5 2. Nf3 Bg7 3. d3 Be5 4. Nxe5 f6 5. Be3 h6 6. Ne4 c6 7. c4 Rh7 8. d4 c5 9. dxc5 Qc7 10. Nd3 Kf8 11. Bd4 f5 12. e3 Qe5 13. Nxe5 Rg7 14. Bd3 a6 15. O-O e6 16. Nd6 Rf7 17. Ndxf7 Ke7 18. Nd6 Nf6 19. Nxc8+ Ke8 20. Nd6+ Ke7 21. Bc3 Nc6 22. Nxc6+ Kf8 23. Bxf6 Ra7 24. Nxa7 b5 25. Bd4 h5 26. cxb5 e5 27. bxa6 f4 28. exf4 exf4 29. Bc3 g4 30. Bd4 Kg8 31. Bc3 g3 32. fxg3 h4 33. gxf4 h3 34. gxh3 Kf8 35. Be5 Kg8 36. Bc3 Kf8 37. Be5 Kg8 38. Bc3 1/2-1/2
+
+
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.01"]
+[Round "6"]
+[White "Random"]
+[Black "CSSEngine-d2"]
+[Result "1/2-1/2"]
+
+1. b3 Nf6 2. c3 Nc6 3. f4 e6 4. Bb2 Bd6 5. Nh3 O-O 6. g3 Nd5 7. Ba3 Bxa3 8. e3 d6 9. Bb5 Bd7 10. Be2 f5 11. Kf1 Bc5 12. g4 fxg4 13. d3 gxh3 14. Bg4 Rf5 15. e4 Nf6 16. Qe1 Nxg4 17. a4 Rf6 18. Qd2 Be3 19. Ra3 Bxd2 20. Kg1 Be3+ 21. Kf1 Bc5 22. b4 Be3 23. f5 exf5 24. Nd2 Bxd2 25. d4 fxe4+ 26. Ke2 d5 27. Rb1 Rd6 28. Rh1 Rf6 29. Rg1 Rd6 30. Kd1 Rf6 31. c4 dxc4 32. Rf1 Rxf1+ 33. Kxd2 Nxd4 34. Ra2 Rf6 35. Rb2 Rd6 36. Kd1 Rf6 37. Rb3 cxb3 38. Kd2 Rd6 39. b5 Rf6 40. Ke1 Rd6 41. Kd2 Rf6 42. b6 axb6 43. Kc1 Rd6 44. a5 bxa5 45. Kb1 Rf6 46. Kc1 Rd6 47. Kb2 Rf6 48. Kb1 Rd6 49. Kc1 Rf6 50. Kb2 Rd6 51. Ka3 Rf6 52. Kb2 Rd6 53. Ka1 Rf6 54. Kb2 1/2-1/2
+
+
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.01"]
+[Round "7"]
+[White "CSSEngine-d2"]
+[Black "Random"]
+[Result "1/2-1/2"]
+
+1. Nc3 h5 2. Nf3 a5 3. d3 d5 4. Be3 Nc6 5. Nxd5 b6 6. c4 Ra6 7. Nc3 g6 8. Nd5 Nb4 9. Nxb4 g5 10. Nxa6 e5 11. Nxe5 Nf6 12. d4 Ng4 13. Nxg4 hxg4 14. d5 f5 15. Bd4 Bh6 16. Bxh8 Qf6 17. Bxf6 Bxa6 18. e3 Bxc4 19. Bxc4 Bg7 20. Bxg7 c6 21. dxc6 f4 22. O-O g3 23. exf4 gxh2+ 24. Kxh2 Ke7 25. fxg5 Ke8 26. Bc3 Kf8 27. Bd4 Ke7 28. Be3 b5 29. Bd4 Kf8 30. Be3 bxc4 31. Bd4 Ke7 32. Be3 Ke8 33. Bd4 Kf7 34. Be3 a4 35. Bd4 c3 36. bxc3 Kg8 37. Be3 a3 38. Bd4 Kf8 39. Be3 Ke7 40. Bd4 Kf7 41. Be3 Kg6 42. Bd4 Kh7 43. Be3 Kg8 44. Bd4 Kf7 45. Be3 Kg6 46. Bd4 Kh7 47. Be3 Kh8 48. Bd4+ Kg8 49. Be3 Kf8 50. Bd4 Ke8 51. Be3 Ke7 52. Bd4 Ke8 53. Be3 Ke7 1/2-1/2
+
+
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.01"]
+[Round "8"]
+[White "Random"]
+[Black "CSSEngine-d2"]
+[Result "1/2-1/2"]
+
+1. Nh3 Nf6 2. a4 Nc6 3. Ra3 e6 4. b3 Bxa3 5. Bb2 Bxb2 6. Na3 Bxa3 7. Qa1 O-O 8. d4 d5 9. c4 dxc4 10. e3 cxb3 11. Qxa3 Nd5 12. Ng1 Bd7 13. Ba6 bxa6 14. Qd6 cxd6 15. Nf3 f5 16. e4 fxe4 17. Nh4 Nxd4 18. Nf3 exf3 19. g3 e5 20. h3 Nf6 21. g4 d5 22. Kd2 e4 23. Rc1 Ne2 24. Rc7 Qxc7 25. g5 Qc4 26. Kd1 Qd3+ 27. Ke1 Qc4 28. g6 hxg6 29. Kf1 Qd3 30. h4 Qc4 31. a5 Qd3 32. h5 gxh5 33. Ke1 Qc4 34. Kd2 Qd3+ 35. Ke1 Qc4 36. Kf1 Qd3 37. Ke1 1/2-1/2
+
+
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.01"]
+[Round "9"]
+[White "CSSEngine-d2"]
+[Black "Random"]
+[Result "1/2-1/2"]
+
+1. Nc3 e6 2. Nf3 d6 3. d3 f5 4. Be3 e5 5. Nd5 Nf6 6. Nxf6+ Ke7 7. c4 h6 8. Nd5+ Ke6 9. Nc3 g6 10. Nd5 c5 11. Nc3 Ke7 12. Nd5+ Ke8 13. Nc3 Qf6 14. Nd5 Be7 15. Nxf6+ Kf8 16. Nd5 Na6 17. Nxe7 Nc7 18. Nxc8 g5 19. b3 e4 20. dxe4 Ne6 21. exf5 Kf7 22. fxe6+ Kg8 23. Qd5 a6 24. O-O-O b5 25. Qxa8 g4 26. Qd5 Rh7 27. cxb5 Re7 28. Nxe7+ Kg7 29. bxa6 c4 30. bxc4 Kh8 31. Rd3 Kg7 32. Rd4 g3 33. fxg3 h5 34. Rd3 Kf8 35. Bf4 Kg7 36. e4 Kh7 37. Be2 Kh8 38. Qf5 Kg7 39. Rd5 Kh8 40. Rd4 d5 41. cxd5 h4 42. gxh4 Kg7 43. e5 Kh8 44. d6 Kg7 45. Qf6+ Kh7 46. Rd5 1/2-1/2
+
+
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.01"]
+[Round "10"]
+[White "Random"]
+[Black "CSSEngine-d2"]
+[Result "1/2-1/2"]
+
+1. d3 Nf6 2. b4 Nc6 3. b5 e6 4. Ba3 Bxa3 5. Nd2 O-O 6. f3 d5 7. Nb1 Bd7 8. Nd2 Bd6 9. Rb1 Nd4 10. Ra1 Nf5 11. Nc4 dxc4 12. h4 cxd3 13. Qd2 dxc2 14. Qe3 c1=Q+ 15. Rxc1 Nxe3 16. Rb1 Nxf1 17. Rh3 Nd5 18. Ra1 f5 19. Rg3 Nxg3 20. f4 Ne4 21. g3 Ndf6 22. a4 Nd5 23. h5 Ndf6 24. a5 Nd5 25. Nh3 Ndf6 26. Rb1 Nd5 27. g4 fxg4 28. Ra1 gxh3 29. Rc1 Rf5 30. Rb1 Ndf6 31. Rb3 Rd5 32. Rb1 Rf5 33. Rb3 Rd5 34. Rg3 Nxg3 35. e3 Rf5 36. h6 gxh6 37. e4 Nfxe4 38. b6 Rd5 39. bxc7 Rf5 40. cxd8=R+ Rxd8 41. Kd1 Rd5+ 42. Kc2 Rf5 43. Kd1 Rd5+ 44. Kc2 Rf5 45. Kd1 1/2-1/2
