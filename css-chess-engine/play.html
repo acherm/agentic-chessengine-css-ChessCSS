@@ -46,9 +46,30 @@ body {
   position: relative;
   transition: background-color 0.1s;
 }
-/* Square colors - using grid position */
+/* Square colors — pure CSS checkerboard via :nth-child */
 #board .sq { background: #b58863; }
-#board .sq.light { background: #f0d9b5; }
+#board .sq:nth-child(16n+1), #board .sq:nth-child(16n+3),
+#board .sq:nth-child(16n+5), #board .sq:nth-child(16n+7),
+#board .sq:nth-child(16n+10), #board .sq:nth-child(16n+12),
+#board .sq:nth-child(16n+14), #board .sq:nth-child(16n+16) {
+  background: #f0d9b5;
+}
+/* Piece symbols — CSS content driven by data-piece attribute */
+[data-piece="wK"]::before { content: '\2654'; }
+[data-piece="wQ"]::before { content: '\2655'; }
+[data-piece="wR"]::before { content: '\2656'; }
+[data-piece="wB"]::before { content: '\2657'; }
+[data-piece="wN"]::before { content: '\2658'; }
+[data-piece="wP"]::before { content: '\2659'; }
+[data-piece="bK"]::before { content: '\265A'; }
+[data-piece="bQ"]::before { content: '\265B'; }
+[data-piece="bR"]::before { content: '\265C'; }
+[data-piece="bB"]::before { content: '\265D'; }
+[data-piece="bN"]::before { content: '\265E'; }
+[data-piece="bP"]::before { content: '\265F'; }
+/* Turn-aware cursors */
+#game[data-turn="w"] .sq[data-piece^="w"] { cursor: pointer; }
+#game[data-turn="w"] .sq:not([data-piece^="w"]) { cursor: default; }
 /* Highlights */
 #board .sq.selected { background: #f6f669 !important; }
 #board .sq.last-move { background: #aac8e8 !important; }
@@ -184,7 +205,16 @@ body {
 
 <div id="app">
   <div id="game" data-turn="w" data-castle-wk="1" data-castle-wq="1" data-castle-bk="1" data-castle-bq="1" data-ep="none">
-    <div id="board"></div>
+    <div id="board">
+      <div class="sq" data-sq="a8" data-piece="bR"></div><div class="sq" data-sq="b8" data-piece="bN"></div><div class="sq" data-sq="c8" data-piece="bB"></div><div class="sq" data-sq="d8" data-piece="bQ"></div><div class="sq" data-sq="e8" data-piece="bK"></div><div class="sq" data-sq="f8" data-piece="bB"></div><div class="sq" data-sq="g8" data-piece="bN"></div><div class="sq" data-sq="h8" data-piece="bR"></div>
+      <div class="sq" data-sq="a7" data-piece="bP"></div><div class="sq" data-sq="b7" data-piece="bP"></div><div class="sq" data-sq="c7" data-piece="bP"></div><div class="sq" data-sq="d7" data-piece="bP"></div><div class="sq" data-sq="e7" data-piece="bP"></div><div class="sq" data-sq="f7" data-piece="bP"></div><div class="sq" data-sq="g7" data-piece="bP"></div><div class="sq" data-sq="h7" data-piece="bP"></div>
+      <div class="sq" data-sq="a6" data-piece="empty"></div><div class="sq" data-sq="b6" data-piece="empty"></div><div class="sq" data-sq="c6" data-piece="empty"></div><div class="sq" data-sq="d6" data-piece="empty"></div><div class="sq" data-sq="e6" data-piece="empty"></div><div class="sq" data-sq="f6" data-piece="empty"></div><div class="sq" data-sq="g6" data-piece="empty"></div><div class="sq" data-sq="h6" data-piece="empty"></div>
+      <div class="sq" data-sq="a5" data-piece="empty"></div><div class="sq" data-sq="b5" data-piece="empty"></div><div class="sq" data-sq="c5" data-piece="empty"></div><div class="sq" data-sq="d5" data-piece="empty"></div><div class="sq" data-sq="e5" data-piece="empty"></div><div class="sq" data-sq="f5" data-piece="empty"></div><div class="sq" data-sq="g5" data-piece="empty"></div><div class="sq" data-sq="h5" data-piece="empty"></div>
+      <div class="sq" data-sq="a4" data-piece="empty"></div><div class="sq" data-sq="b4" data-piece="empty"></div><div class="sq" data-sq="c4" data-piece="empty"></div><div class="sq" data-sq="d4" data-piece="empty"></div><div class="sq" data-sq="e4" data-piece="empty"></div><div class="sq" data-sq="f4" data-piece="empty"></div><div class="sq" data-sq="g4" data-piece="empty"></div><div class="sq" data-sq="h4" data-piece="empty"></div>
+      <div class="sq" data-sq="a3" data-piece="empty"></div><div class="sq" data-sq="b3" data-piece="empty"></div><div class="sq" data-sq="c3" data-piece="empty"></div><div class="sq" data-sq="d3" data-piece="empty"></div><div class="sq" data-sq="e3" data-piece="empty"></div><div class="sq" data-sq="f3" data-piece="empty"></div><div class="sq" data-sq="g3" data-piece="empty"></div><div class="sq" data-sq="h3" data-piece="empty"></div>
+      <div class="sq" data-sq="a2" data-piece="wP"></div><div class="sq" data-sq="b2" data-piece="wP"></div><div class="sq" data-sq="c2" data-piece="wP"></div><div class="sq" data-sq="d2" data-piece="wP"></div><div class="sq" data-sq="e2" data-piece="wP"></div><div class="sq" data-sq="f2" data-piece="wP"></div><div class="sq" data-sq="g2" data-piece="wP"></div><div class="sq" data-sq="h2" data-piece="wP"></div>
+      <div class="sq" data-sq="a1" data-piece="wR"></div><div class="sq" data-sq="b1" data-piece="wN"></div><div class="sq" data-sq="c1" data-piece="wB"></div><div class="sq" data-sq="d1" data-piece="wQ"></div><div class="sq" data-sq="e1" data-piece="wK"></div><div class="sq" data-sq="f1" data-piece="wB"></div><div class="sq" data-sq="g1" data-piece="wN"></div><div class="sq" data-sq="h1" data-piece="wR"></div>
+    </div>
     <div id="candidates"></div>
   </div>
   <div id="info-panel">
@@ -201,12 +231,6 @@ body {
 
 <script>
 'use strict';
-
-// ── Piece symbols ──
-const PIECE_SYMBOLS = {
-  wK: '\u2654', wQ: '\u2655', wR: '\u2656', wB: '\u2657', wN: '\u2658', wP: '\u2659',
-  bK: '\u265A', bQ: '\u265B', bR: '\u265C', bB: '\u265D', bN: '\u265E', bP: '\u265F',
-};
 
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
@@ -440,26 +464,6 @@ function generateCandidateMovesHtml() {
   return divs.join('\n');
 }
 
-function generateSquares(gameState) {
-  const boardEl = document.getElementById('board');
-  boardEl.innerHTML = '';
-  for (let rank = 8; rank >= 1; rank--) {
-    for (let fileIdx = 0; fileIdx < 8; fileIdx++) {
-      const sq = FILES[fileIdx] + rank;
-      const piece = gameState.board[sq] || 'empty';
-      const div = document.createElement('div');
-      div.className = 'sq';
-      div.setAttribute('data-piece', piece);
-      div.setAttribute('data-sq', sq);
-      // Light/dark square coloring
-      if ((fileIdx + rank) % 2 === 1) div.classList.add('light');
-      // Piece symbol
-      if (piece !== 'empty') div.textContent = PIECE_SYMBOLS[piece] || '';
-      boardEl.appendChild(div);
-    }
-  }
-}
-
 // ── CSS Evaluator (adapted from src/css-evaluator.js, no Puppeteer) ──
 let lastFen = null;
 
@@ -479,9 +483,7 @@ function updatePosition(gameState) {
   const squares = document.querySelectorAll('#board .sq');
   for (const sqEl of squares) {
     const sq = sqEl.getAttribute('data-sq');
-    const piece = gameState.board[sq] || 'empty';
-    sqEl.setAttribute('data-piece', piece);
-    sqEl.textContent = piece !== 'empty' ? (PIECE_SYMBOLS[piece] || '') : '';
+    sqEl.setAttribute('data-piece', gameState.board[sq] || 'empty');
   }
 
   // Update data-king on candidate moves
@@ -620,10 +622,7 @@ function init() {
   gameOver = false;
   lastFen = null;
 
-  // Generate board squares
-  generateSquares(gameState);
-
-  // Generate candidate moves
+  // Generate candidate moves (once; board squares are static HTML)
   document.getElementById('candidates').innerHTML = generateCandidateMovesHtml();
 
   // Clear UI
@@ -631,10 +630,7 @@ function init() {
   document.getElementById('status').textContent = 'Your turn (White)';
   document.getElementById('status').className = '';
 
-  // Attach click handlers
-  document.getElementById('board').addEventListener('click', onBoardClick);
-
-  // Force initial style computation
+  // Reset board squares to starting position (CSS renders pieces via data-piece)
   updatePosition(gameState);
 }
 
@@ -707,13 +703,12 @@ function showPromotionDialog(toSq, fromSq) {
   const dialog = document.getElementById('promo-dialog');
   const color = gameState.turn;
   const pieces = ['Q', 'R', 'B', 'N'];
-  const symbols = pieces.map(p => PIECE_SYMBOLS[color + p]);
 
   dialog.innerHTML = '';
   for (let i = 0; i < pieces.length; i++) {
     const btn = document.createElement('div');
     btn.className = 'promo-choice';
-    btn.textContent = symbols[i];
+    btn.setAttribute('data-piece', color + pieces[i]);
     btn.addEventListener('click', () => {
       overlay.classList.remove('active');
       const move = currentLegalMoves.find(m =>
@@ -792,12 +787,9 @@ function engineMove() {
 function updateBoard(lastMove) {
   updatePosition(gameState);
 
-  // Update piece display and clear old highlights
+  // Clear old highlights (CSS handles piece display via data-piece)
   for (const el of document.querySelectorAll('#board .sq')) {
     el.classList.remove('last-move', 'check');
-    const sq = el.getAttribute('data-sq');
-    const piece = gameState.board[sq] || 'empty';
-    el.textContent = piece !== 'empty' ? (PIECE_SYMBOLS[piece] || '') : '';
   }
 
   // Highlight last move
@@ -856,6 +848,7 @@ function setStatus(text, thinking) {
 }
 
 // ── Init ──
+document.getElementById('board').addEventListener('click', onBoardClick);
 document.getElementById('new-game').addEventListener('click', init);
 init();
 </script>
