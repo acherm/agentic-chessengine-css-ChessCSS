@@ -97,11 +97,15 @@ body {
 #board .sq:hover:not(.selected) {
   filter: brightness(1.1);
 }
-/* Off-screen candidates */
+/* Candidates at viewport origin for elementFromPoint(0,0) z-index argmax */
 #candidates {
-  position: absolute;
-  left: -9999px;
-  top: -9999px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 999999;
 }
 /* Info panel */
 #info-panel {
