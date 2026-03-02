@@ -152,6 +152,7 @@ function generate() {
   lines.push('  --bishop-defense: 0;');
   lines.push('  --rook-defense: 0;');
   lines.push('  --disc-attack: 0;');
+  lines.push('  --reversal-penalty: 0;');
 
   // SEE penalty: find cheapest attacker, compute material loss, halve if defended.
   // Defense factor: (2 - max(defenses)) / 2 = 1.0 if undefended, 0.5 if defended.
@@ -167,6 +168,7 @@ function generate() {
   lines.push('    - ' + seePenalty);
   lines.push('      * (2 - max(var(--pawn-defense), var(--knight-defense), var(--bishop-defense), var(--rook-defense))) / 2');
   lines.push('    - var(--disc-attack)');
+  lines.push('    - var(--reversal-penalty)');
   lines.push('  );');
 
   // order: backward compat for getLegalMoves() which reads style.order
@@ -336,6 +338,11 @@ function generate() {
   // Discovered attack rules
   lines.push('/* ── Discovered attacks: moving from-square reveals slider attack on friendly piece ── */');
   generateDiscoveredAttacks(lines);
+  lines.push('');
+
+  // Reversal penalty rules
+  lines.push('/* ── Reversal penalty: penalize moving a piece back to where it just came from ── */');
+  generateReversalPenalty(lines);
 
   return lines.join('\n') + '\n';
 }
@@ -607,6 +614,31 @@ function generateDiscoveredAttacks(lines) {
               }
             }
           }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Reversal penalty: for each square pair (X, Y) where X ≠ Y, penalize
+ * the move Y→X when the side to move just played X→Y.
+ * Uses :is() to cover both colors in a single rule.
+ * 64 × 63 = 4032 rules.
+ */
+function generateReversalPenalty(lines) {
+  for (let fi1 = 0; fi1 < 8; fi1++) {
+    for (let ri1 = 1; ri1 <= 8; ri1++) {
+      const sqX = FILES[fi1] + ri1;
+      for (let fi2 = 0; fi2 < 8; fi2++) {
+        for (let ri2 = 1; ri2 <= 8; ri2++) {
+          if (fi1 === fi2 && ri1 === ri2) continue;
+          const sqY = FILES[fi2] + ri2;
+          lines.push(
+            `:is(#game[data-turn="w"][data-last-from-w="${sqX}"][data-last-to-w="${sqY}"],` +
+            `#game[data-turn="b"][data-last-from-b="${sqX}"][data-last-to-b="${sqY}"])` +
+            ` .move[data-from="${sqY}"][data-to="${sqX}"] { --reversal-penalty: 50; }`
+          );
         }
       }
     }

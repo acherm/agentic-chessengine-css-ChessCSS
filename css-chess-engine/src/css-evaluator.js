@@ -27,6 +27,19 @@ class CssEvaluator {
     this.moveGenPage = null;
     this.moveGenReady = false;
     this._lastFen = null; // Position cache to skip redundant DOM updates
+    this._lastMoveW = null; // { from, to } for white's last move
+    this._lastMoveB = null; // { from, to } for black's last move
+  }
+
+  /**
+   * Set each side's last move for reversal penalty detection.
+   * @param {{ from: string, to: string }|null} lastMoveW - white's last move
+   * @param {{ from: string, to: string }|null} lastMoveB - black's last move
+   */
+  setLastMoves(lastMoveW, lastMoveB) {
+    this._lastMoveW = lastMoveW;
+    this._lastMoveB = lastMoveB;
+    this._lastFen = null; // Force DOM update on next call
   }
 
   async init() {
@@ -98,6 +111,22 @@ class CssEvaluator {
       game.setAttribute('data-castle-bq', state.castleBQ ? '1' : '0');
       game.setAttribute('data-ep', state.epSquare || 'none');
 
+      // Set last-move attributes for reversal penalty
+      if (state.lastMoveW) {
+        game.setAttribute('data-last-from-w', state.lastMoveW.from);
+        game.setAttribute('data-last-to-w', state.lastMoveW.to);
+      } else {
+        game.removeAttribute('data-last-from-w');
+        game.removeAttribute('data-last-to-w');
+      }
+      if (state.lastMoveB) {
+        game.setAttribute('data-last-from-b', state.lastMoveB.from);
+        game.setAttribute('data-last-to-b', state.lastMoveB.to);
+      } else {
+        game.removeAttribute('data-last-from-b');
+        game.removeAttribute('data-last-to-b');
+      }
+
       const squares = document.querySelectorAll('.sq');
       for (const sqEl of squares) {
         const sq = sqEl.getAttribute('data-sq');
@@ -111,6 +140,8 @@ class CssEvaluator {
       castleBQ: gameState.castleBQ,
       epSquare: gameState.epSquare,
       board: gameState.board,
+      lastMoveW: this._lastMoveW,
+      lastMoveB: this._lastMoveB,
     });
   }
 

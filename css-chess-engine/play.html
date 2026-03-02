@@ -4526,6 +4526,12 @@ function resetBoard(fen) {
   game.setAttribute('data-castle-bk', castling.includes('k') ? '1' : '0');
   game.setAttribute('data-castle-bq', castling.includes('q') ? '1' : '0');
   game.dataset.ep = (parts[3] && parts[3] !== '-') ? parts[3] : 'none';
+
+  // Clear last-move tracking (for reversal penalty)
+  game.removeAttribute('data-last-from-w');
+  game.removeAttribute('data-last-to-w');
+  game.removeAttribute('data-last-from-b');
+  game.removeAttribute('data-last-to-b');
 }
 
 // ── applyMove(move) ── Directly mutate DOM attributes
@@ -4578,6 +4584,10 @@ function applyMove(move) {
   } else {
     game.dataset.ep = 'none';
   }
+
+  // Record this side's last move (for reversal penalty)
+  game.setAttribute('data-last-from-' + color, move.from);
+  game.setAttribute('data-last-to-' + color, move.to);
 
   // Switch turn
   game.dataset.turn = color === 'w' ? 'b' : 'w';
