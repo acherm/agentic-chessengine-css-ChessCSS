@@ -27,6 +27,8 @@
  *   - Bishop/queen diagonal defense rules (~1,120 rules)
  *   - Rook/queen line defense rules (~1,792 rules)
  *   - Discovered attack rules (~5,000 rules)
+ *   - Check detection rules (~3,800 rules: knight, pawn, rook/queen line, bishop/queen diagonal)
+ *   - Reversal penalty rules (4,032 rules)
  */
 
 const fs = require('fs');
@@ -153,6 +155,10 @@ function generate() {
   lines.push('  --rook-defense: 0;');
   lines.push('  --disc-attack: 0;');
   lines.push('  --reversal-penalty: 0;');
+  lines.push('  --knight-checks-king: 0;');
+  lines.push('  --pawn-checks-king: 0;');
+  lines.push('  --rook-line-checks-king: 0;');
+  lines.push('  --bishop-diag-checks-king: 0;');
 
   // SEE penalty: find cheapest attacker, compute material loss, halve if defended.
   // Defense factor: (2 - max(defenses)) / 2 = 1.0 if undefended, 0.5 if defended.
@@ -169,6 +175,11 @@ function generate() {
   lines.push('      * (2 - max(var(--pawn-defense), var(--knight-defense), var(--bishop-defense), var(--rook-defense))) / 2');
   lines.push('    - var(--disc-attack)');
   lines.push('    - var(--reversal-penalty)');
+  // Check bonus: give bonus when move gives check (geometry flag + piece type match)
+  lines.push('    + if(style(--knight-checks-king: 1): if(style(--attacker-value: 320): 40; else: 0); else: 0)');
+  lines.push('    + if(style(--pawn-checks-king: 1): if(style(--attacker-value: 100): 40; else: 0); else: 0)');
+  lines.push('    + if(style(--rook-line-checks-king: 1): if(style(--attacker-value: 500): 40; style(--attacker-value: 900): 40; else: 0); else: 0)');
+  lines.push('    + if(style(--bishop-diag-checks-king: 1): if(style(--attacker-value: 330): 40; style(--attacker-value: 900): 40; else: 0); else: 0)');
   lines.push('  );');
 
   // order: backward compat for getLegalMoves() which reads style.order
@@ -338,6 +349,23 @@ function generate() {
   // Discovered attack rules
   lines.push('/* ── Discovered attacks: moving from-square reveals slider attack on friendly piece ── */');
   generateDiscoveredAttacks(lines);
+  lines.push('');
+
+  // Check geometry rules
+  lines.push('/* ── Knight check: to-square is knight-hop from enemy king ── */');
+  generateKnightChecks(lines);
+  lines.push('');
+
+  lines.push('/* ── Pawn check: to-square pawn-attacks enemy king ── */');
+  generatePawnChecks(lines);
+  lines.push('');
+
+  lines.push('/* ── Rook/queen line check: to-square on same rank/file as enemy king, clear path ── */');
+  generateSlidingChecks(lines, { directions: ROOK_DIRS, varName: '--rook-line-checks-king' });
+  lines.push('');
+
+  lines.push('/* ── Bishop/queen diagonal check: to-square on same diagonal as enemy king, clear path ── */');
+  generateSlidingChecks(lines, { directions: BISHOP_DIRS, varName: '--bishop-diag-checks-king' });
   lines.push('');
 
   // Reversal penalty rules
@@ -614,6 +642,114 @@ function generateDiscoveredAttacks(lines) {
               }
             }
           }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Knight check geometry: for each (to_sq, king_sq) pair where to_sq is a
+ * knight-hop from king_sq, set --knight-checks-king: 1.
+ * The score formula then applies the bonus only if the moving piece is a knight.
+ */
+function generateKnightChecks(lines) {
+  const knightOffsets = [
+    [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+    [1, -2], [1, 2], [2, -1], [2, 1],
+  ];
+
+  for (let fi = 0; fi < 8; fi++) {
+    for (let ri = 1; ri <= 8; ri++) {
+      const toSq = FILES[fi] + ri;
+
+      for (const [dfi, dri] of knightOffsets) {
+        const kfi = fi + dfi;
+        const kri = ri + dri;
+        if (kfi >= 0 && kfi < 8 && kri >= 1 && kri <= 8) {
+          const kingSq = FILES[kfi] + kri;
+          lines.push(
+            `#game[data-turn="w"]:has(.sq[data-sq="${kingSq}"][data-piece="bK"]) .move[data-to="${toSq}"] { --knight-checks-king: 1; }`
+          );
+          lines.push(
+            `#game[data-turn="b"]:has(.sq[data-sq="${kingSq}"][data-piece="wK"]) .move[data-to="${toSq}"] { --knight-checks-king: 1; }`
+          );
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Pawn check geometry: for each (to_sq, king_sq) pair where a pawn on
+ * to_sq would attack king_sq, set --pawn-checks-king: 1.
+ * White pawns attack upward (+1 rank), black pawns attack downward (-1 rank).
+ */
+function generatePawnChecks(lines) {
+  for (let fi = 0; fi < 8; fi++) {
+    for (let ri = 1; ri <= 8; ri++) {
+      const toSq = FILES[fi] + ri;
+
+      // White pawn on (fi, ri) attacks (fi±1, ri+1)
+      for (const dfi of [-1, 1]) {
+        const kfi = fi + dfi;
+        const kri = ri + 1;
+        if (kfi >= 0 && kfi < 8 && kri >= 1 && kri <= 8) {
+          const kingSq = FILES[kfi] + kri;
+          lines.push(
+            `#game[data-turn="w"]:has(.sq[data-sq="${kingSq}"][data-piece="bK"]) .move[data-to="${toSq}"] { --pawn-checks-king: 1; }`
+          );
+        }
+      }
+
+      // Black pawn on (fi, ri) attacks (fi±1, ri-1)
+      for (const dfi of [-1, 1]) {
+        const kfi = fi + dfi;
+        const kri = ri - 1;
+        if (kfi >= 0 && kfi < 8 && kri >= 1 && kri <= 8) {
+          const kingSq = FILES[kfi] + kri;
+          lines.push(
+            `#game[data-turn="b"]:has(.sq[data-sq="${kingSq}"][data-piece="wK"]) .move[data-to="${toSq}"] { --pawn-checks-king: 1; }`
+          );
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Sliding check geometry: for each (to_sq, direction), cast a ray and check
+ * if the enemy king is along it with all intermediate squares empty.
+ * Sets the given varName flag. The score formula conditions on piece type.
+ *
+ * @param {string[]} lines - output array
+ * @param {Object} opts
+ * @param {number[][]} opts.directions - direction vectors (ROOK_DIRS or BISHOP_DIRS)
+ * @param {string} opts.varName - CSS variable to set (e.g. '--rook-line-checks-king')
+ */
+function generateSlidingChecks(lines, { directions, varName }) {
+  for (let fi = 0; fi < 8; fi++) {
+    for (let ri = 1; ri <= 8; ri++) {
+      const toSq = FILES[fi] + ri;
+
+      for (const [dfi, dri] of directions) {
+        const ray = slidingRay(fi, ri, dfi, dri);
+        const between = [];
+
+        for (const sq of ray) {
+          for (const color of ['w', 'b']) {
+            const enemyKing = color === 'w' ? 'bK' : 'wK';
+
+            let sel = `#game[data-turn="${color}"]`;
+            sel += `:has(.sq[data-sq="${sq}"][data-piece="${enemyKing}"])`;
+            for (const bsq of between) {
+              sel += `:has(.sq[data-sq="${bsq}"][data-piece="empty"])`;
+            }
+            sel += ` .move[data-to="${toSq}"] { ${varName}: 1; }`;
+            lines.push(sel);
+          }
+
+          between.push(sq);
         }
       }
     }
