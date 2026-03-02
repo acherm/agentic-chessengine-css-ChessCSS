@@ -91,9 +91,9 @@ body {
 /* Highlights */
 #board .sq.selected { background: #f6f669 !important; }
 #board .sq.last-move { background: #aac8e8 !important; }
-/* Check highlight — driven by data-in-check on #game */
-#game[data-in-check="w"] #board .sq[data-piece="wK"] { background: #ff6b6b !important; }
-#game[data-in-check="b"] #board .sq[data-piece="bK"] { background: #ff6b6b !important; }
+/* Check highlight — driven directly by CSS custom properties from check-detection.css */
+#board .sq[data-piece="wK"] { box-shadow: inset 0 0 calc(var(--wk-in-check, 0) * 20px) #ff6b6b; }
+#board .sq[data-piece="bK"] { box-shadow: inset 0 0 calc(var(--bk-in-check, 0) * 20px) #ff6b6b; }
 #board .sq:hover:not(.selected) {
   filter: brightness(1.1);
 }
@@ -4526,8 +4526,6 @@ function resetBoard(fen) {
   game.setAttribute('data-castle-bk', castling.includes('k') ? '1' : '0');
   game.setAttribute('data-castle-bq', castling.includes('q') ? '1' : '0');
   game.dataset.ep = (parts[3] && parts[3] !== '-') ? parts[3] : 'none';
-  game.removeAttribute('data-in-check');
-
 }
 
 // ── applyMove(move) ── Directly mutate DOM attributes
@@ -4810,13 +4808,6 @@ function updateBoard(lastMove) {
   if (lastMove) {
     sqElements.get(lastMove.from).classList.add('last-move');
     sqElements.get(lastMove.to).classList.add('last-move');
-  }
-
-  // CSS check highlighting via data-in-check
-  if (isInCheck()) {
-    game.dataset.inCheck = game.dataset.turn;
-  } else {
-    game.removeAttribute('data-in-check');
   }
 }
 
