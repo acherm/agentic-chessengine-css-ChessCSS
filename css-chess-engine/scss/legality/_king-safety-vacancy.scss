@@ -1,0 +1,93 @@
+@use "sass:list";
+@use "constants" as *;
+@use "functions" as *;
+@use "mixins" as *;
+
+/* === King Safety: Sliding attacks (with king vacancy) === */
+@each $def-color in $colors {
+  $atk-color: opp-color($def-color);
+  $king: $def-color + "K";
+  $turn-sel: '#game[data-turn="' + $def-color + '"]';
+
+  @for $kf from 0 through 7 {
+    @for $kr from 0 through 7 {
+      $king-sq: sq-name($kf, $kr);
+
+      // For each adjacent destination (king move)
+      @each $move-dir in $king-offsets {
+        $mdf: list.nth($move-dir, 1);
+        $mdr: list.nth($move-dir, 2);
+        $dest-f: $kf + $mdf;
+        $dest-r: $kr + $mdr;
+
+        @if is-valid($dest-f, $dest-r) {
+          $dest-sq: sq-name($dest-f, $dest-r);
+
+          // Check each sliding direction from destSq
+          $di: 0;
+          @each $dir in $all-dirs {
+            $ddf: list.nth($dir, 1);
+            $ddr: list.nth($dir, 2);
+            $is-rook-like: $di < 4;
+
+            // Walk from destSq in this direction
+            $af: $dest-f + $ddf;
+            $ar: $dest-r + $ddr;
+            $between: ();
+            $king-on-ray: false;
+
+            @while is-valid($af, $ar) {
+              $sq: sq-name($af, $ar);
+
+              @if $sq == $king-sq {
+                $king-on-ray: true;
+              } @else if not $king-on-ray {
+                $between: list.append($between, $sq);
+              } @else {
+                // King IS on this ray, sq is potential attacker position
+                $atk-sq: $sq;
+                $p1: $atk-color + "R";
+                @if not $is-rook-like { $p1: $atk-color + "B"; }
+                $p2: $atk-color + "Q";
+
+                $sel: $turn-sel;
+                $sel: $sel + has-piece($king-sq, $king);
+                $sel: $sel + has-attacker($atk-sq, $p1, $p2);
+
+                // All squares between destSq and king (excluding kingSq) must be empty
+                $sel: $sel + empty-chain($between);
+
+                // Squares between kingSq and attacker must also be empty
+                $between-king-atk: ();
+                $cf: $kf + $ddf;
+                $cr: $kr + $ddr;
+                $found-atk: false;
+                @while is-valid($cf, $cr) and not $found-atk {
+                  $csq: sq-name($cf, $cr);
+                  @if $csq == $atk-sq {
+                    $found-atk: true;
+                  } @else {
+                    $between-king-atk: list.append($between-king-atk, $csq);
+                  }
+                  $cf: $cf + $ddf;
+                  $cr: $cr + $ddr;
+                }
+                $sel: $sel + empty-chain($between-king-atk);
+
+                $sel: $sel + ' .move[data-from="' + $king-sq + '"][data-to="' + $dest-sq + '"]';
+                @include emit-rule($sel);
+
+                $between: list.append($between, $atk-sq);
+              }
+
+              $af: $af + $ddf;
+              $ar: $ar + $ddr;
+            }
+
+            $di: $di + 1;
+          }
+        }
+      }
+    }
+  }
+}

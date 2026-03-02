@@ -1,0 +1,77 @@
+@use "sass:list";
+@use "constants" as *;
+@use "functions" as *;
+@use "mixins" as *;
+
+/* === King Safety: Sliding attacks (no vacancy) === */
+@each $def-color in $colors {
+  $atk-color: opp-color($def-color);
+  $turn-sel: '#game[data-turn="' + $def-color + '"]';
+
+  @for $df from 0 through 7 {
+    @for $dr from 0 through 7 {
+      $dest-sq: sq-name($df, $dr);
+
+      // Rook/Queen sliding attacks
+      @each $dir in $rook-dirs {
+        $ddf: list.nth($dir, 1);
+        $ddr: list.nth($dir, 2);
+        $between: ();
+        $af: $df + $ddf;
+        $ar: $dr + $ddr;
+
+        @while is-valid($af, $ar) {
+          $atk-sq: sq-name($af, $ar);
+          // Enumerate all valid king source squares adjacent to dest
+          $sels: ();
+          @each $koff in $king-offsets {
+            $sf: $df - list.nth($koff, 1);
+            $sr: $dr - list.nth($koff, 2);
+            @if is-valid($sf, $sr) {
+              $src-sq: sq-name($sf, $sr);
+              $sel: $turn-sel + has-piece($src-sq, $def-color + "K") + has-attacker($atk-sq, $atk-color + "R", $atk-color + "Q");
+              $sel: $sel + empty-chain($between);
+              $sel: $sel + ' .move[data-from="' + $src-sq + '"][data-to="' + $dest-sq + '"]';
+              $sels: list.append($sels, $sel, comma);
+            }
+          }
+          @include emit-rule-list($sels);
+
+          $between: list.append($between, $atk-sq);
+          $af: $af + $ddf;
+          $ar: $ar + $ddr;
+        }
+      }
+
+      // Bishop/Queen sliding attacks
+      @each $dir in $bishop-dirs {
+        $ddf: list.nth($dir, 1);
+        $ddr: list.nth($dir, 2);
+        $between: ();
+        $af: $df + $ddf;
+        $ar: $dr + $ddr;
+
+        @while is-valid($af, $ar) {
+          $atk-sq: sq-name($af, $ar);
+          $sels: ();
+          @each $koff in $king-offsets {
+            $sf: $df - list.nth($koff, 1);
+            $sr: $dr - list.nth($koff, 2);
+            @if is-valid($sf, $sr) {
+              $src-sq: sq-name($sf, $sr);
+              $sel: $turn-sel + has-piece($src-sq, $def-color + "K") + has-attacker($atk-sq, $atk-color + "B", $atk-color + "Q");
+              $sel: $sel + empty-chain($between);
+              $sel: $sel + ' .move[data-from="' + $src-sq + '"][data-to="' + $dest-sq + '"]';
+              $sels: list.append($sels, $sel, comma);
+            }
+          }
+          @include emit-rule-list($sels);
+
+          $between: list.append($between, $atk-sq);
+          $af: $af + $ddf;
+          $ar: $ar + $ddr;
+        }
+      }
+    }
+  }
+}

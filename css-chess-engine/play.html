@@ -4528,7 +4528,6 @@ function resetBoard(fen) {
   game.dataset.ep = (parts[3] && parts[3] !== '-') ? parts[3] : 'none';
   game.removeAttribute('data-in-check');
 
-  updateKingMarkers();
 }
 
 // ── applyMove(move) ── Directly mutate DOM attributes
@@ -4585,31 +4584,6 @@ function applyMove(move) {
   // Switch turn
   game.dataset.turn = color === 'w' ? 'b' : 'w';
 
-  updateKingMarkers();
-}
-
-// ── updateKingMarkers() ── Set data-king on candidate moves from king's square
-function updateKingMarkers() {
-  const kingPiece = game.dataset.turn + 'K';
-  let kingSq = null;
-  for (const [sq, el] of sqElements) {
-    if (el.dataset.piece === kingPiece) { kingSq = sq; break; }
-  }
-
-  const prevKingSq = game.getAttribute('data-active-king');
-  if (prevKingSq !== kingSq) {
-    if (prevKingSq) {
-      for (const el of document.querySelectorAll('#candidates .move[data-from="' + prevKingSq + '"][data-king="true"]')) {
-        el.removeAttribute('data-king');
-      }
-    }
-    if (kingSq) {
-      for (const el of document.querySelectorAll('#candidates .move[data-from="' + kingSq + '"]')) {
-        el.setAttribute('data-king', 'true');
-      }
-    }
-    game.setAttribute('data-active-king', kingSq || '');
-  }
 }
 
 // ── getLegalMoves() ── Read CSS computed styles, no arguments needed

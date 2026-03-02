@@ -1,0 +1,93 @@
+@use "sass:list";
+@use "constants" as *;
+@use "functions" as *;
+@use "mixins" as *;
+
+/* === Check Evasion: non-king moves must block or capture checker === */
+@each $def-color in $colors {
+  $atk-color: opp-color($def-color);
+  $king: $def-color + "K";
+  $turn-sel: '#game[data-turn="' + $def-color + '"]';
+
+  @for $kf from 0 through 7 {
+    @for $kr from 0 through 7 {
+      $king-sq: sq-name($kf, $kr);
+
+      // Knight checks — can only capture the knight
+      @each $off in $knight-offsets {
+        $ndf: list.nth($off, 1);
+        $ndr: list.nth($off, 2);
+        $af: $kf + $ndf;
+        $ar: $kr + $ndr;
+        @if is-valid($af, $ar) {
+          $atk-sq: sq-name($af, $ar);
+          @include emit-rule($turn-sel + has-piece($king-sq, $king) + has-piece($atk-sq, $atk-color + "N") + ' .move:not([data-from="' + $king-sq + '"]):not([data-to="' + $atk-sq + '"])');
+        }
+      }
+
+      // Pawn checks — can only capture the pawn
+      $pawn-dir: 1;
+      @if $def-color == "b" { $pawn-dir: -1; }
+      @each $pdf in -1, 1 {
+        $af: $kf + $pdf;
+        $ar: $kr + $pawn-dir;
+        @if is-valid($af, $ar) {
+          $atk-sq: sq-name($af, $ar);
+          @include emit-rule($turn-sel + has-piece($king-sq, $king) + has-piece($atk-sq, $atk-color + "P") + ' .move:not([data-from="' + $king-sq + '"]):not([data-to="' + $atk-sq + '"])');
+        }
+      }
+
+      // Rook/Queen checks along rank/file — can capture or block
+      @each $dir in $rook-dirs {
+        $ddf: list.nth($dir, 1);
+        $ddr: list.nth($dir, 2);
+        $between: ();
+        $af: $kf + $ddf;
+        $ar: $kr + $ddr;
+
+        @while is-valid($af, $ar) {
+          $atk-sq: sq-name($af, $ar);
+
+          $legal-dests: list.join($between, ($atk-sq,));
+          $not-parts: not-to-chain($legal-dests);
+
+          $sel: $turn-sel + has-piece($king-sq, $king);
+          $sel: $sel + empty-chain($between);
+          $sel: $sel + has-attacker($atk-sq, $atk-color + "R", $atk-color + "Q");
+          $sel: $sel + ' .move:not([data-from="' + $king-sq + '"])' + $not-parts;
+          @include emit-rule($sel);
+
+          $between: list.append($between, $atk-sq);
+          $af: $af + $ddf;
+          $ar: $ar + $ddr;
+        }
+      }
+
+      // Bishop/Queen checks along diagonals — can capture or block
+      @each $dir in $bishop-dirs {
+        $ddf: list.nth($dir, 1);
+        $ddr: list.nth($dir, 2);
+        $between: ();
+        $af: $kf + $ddf;
+        $ar: $kr + $ddr;
+
+        @while is-valid($af, $ar) {
+          $atk-sq: sq-name($af, $ar);
+
+          $legal-dests: list.join($between, ($atk-sq,));
+          $not-parts: not-to-chain($legal-dests);
+
+          $sel: $turn-sel + has-piece($king-sq, $king);
+          $sel: $sel + empty-chain($between);
+          $sel: $sel + has-attacker($atk-sq, $atk-color + "B", $atk-color + "Q");
+          $sel: $sel + ' .move:not([data-from="' + $king-sq + '"])' + $not-parts;
+          @include emit-rule($sel);
+
+          $between: list.append($between, $atk-sq);
+          $af: $af + $ddf;
+          $ar: $ar + $ddr;
+        }
+      }
+    }
+  }
+}

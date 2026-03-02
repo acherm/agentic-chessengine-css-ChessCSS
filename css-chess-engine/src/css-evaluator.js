@@ -89,13 +89,6 @@ class CssEvaluator {
     if (this._lastFen === fen) return;
     this._lastFen = fen;
 
-    // Find the side-to-move's king square
-    const kingPiece = gameState.turn === 'w' ? 'wK' : 'bK';
-    let kingSq = null;
-    for (const [sq, piece] of Object.entries(gameState.board)) {
-      if (piece === kingPiece) { kingSq = sq; break; }
-    }
-
     await this.moveGenPage.evaluate((state) => {
       const game = document.getElementById('game');
       game.setAttribute('data-turn', state.turn);
@@ -110,22 +103,6 @@ class CssEvaluator {
         const sq = sqEl.getAttribute('data-sq');
         sqEl.setAttribute('data-piece', state.board[sq] || 'empty');
       }
-
-      // Dynamically set data-king="true" on moves from the king's square
-      const prevKingSq = game.getAttribute('data-active-king');
-      if (prevKingSq !== state.kingSq) {
-        // Remove from old king square's moves
-        if (prevKingSq) {
-          const oldMoves = document.querySelectorAll(`#candidates .move[data-from="${prevKingSq}"][data-king="true"]`);
-          for (const el of oldMoves) el.removeAttribute('data-king');
-        }
-        // Set on new king square's moves
-        if (state.kingSq) {
-          const newMoves = document.querySelectorAll(`#candidates .move[data-from="${state.kingSq}"]`);
-          for (const el of newMoves) el.setAttribute('data-king', 'true');
-        }
-        game.setAttribute('data-active-king', state.kingSq || '');
-      }
     }, {
       turn: gameState.turn,
       castleWK: gameState.castleWK,
@@ -134,7 +111,6 @@ class CssEvaluator {
       castleBQ: gameState.castleBQ,
       epSquare: gameState.epSquare,
       board: gameState.board,
-      kingSq: kingSq,
     });
   }
 

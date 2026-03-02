@@ -1,0 +1,13 @@
+@use "sass:list";
+
+@mixin emit-rule($selector) {
+  @at-root #{$selector} { --illegal: 1; }
+}
+
+@mixin emit-rule-list($selectors) {
+  @if list.length($selectors) > 0 {
+    @at-root #{$selectors} {
+      --illegal: 1;
+    }
+  }
+}
