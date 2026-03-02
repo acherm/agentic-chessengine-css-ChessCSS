@@ -4806,9 +4806,12 @@ function engineMove() {
     return;
   }
 
-  // Greedy: pick highest score
-  moves.sort((a, b) => b.score - a.score);
-  const bestMove = moves[0];
+  // CSS z-index argmax: elementFromPoint returns the highest-scored legal move
+  const el = document.elementFromPoint(0, 0);
+  const bf = el?.dataset.from;
+  const bt = el?.dataset.to;
+  const bp = el?.dataset.promotion || '';
+  const bestMove = moves.find(m => m.from === bf && m.to === bt && (m.promotion || '') === bp) || moves[0];
 
   const san = toSan(bestMove, moves);
 

@@ -139,6 +139,31 @@ class CssEvaluator {
   }
 
   /**
+   * Get the best legal move using CSS z-index argmax.
+   * All ~4000 candidate moves are positioned at (0,0) with z-index proportional
+   * to score. Illegal moves have visibility:hidden. elementFromPoint(0,0) returns
+   * the topmost visible element — the highest-scored legal move — in O(1).
+   *
+   * @param {GameState} gameState
+   * @returns {{ from: string, to: string, promotion: string, score: number } | null}
+   */
+  async getBestMove(gameState) {
+    await this._updateMoveGenPosition(gameState);
+
+    return await this.moveGenPage.evaluate(() => {
+      const el = document.elementFromPoint(0, 0);
+      if (!el || !el.classList.contains('move')) return null;
+
+      const from = el.getAttribute('data-from');
+      const to = el.getAttribute('data-to');
+      const promotion = el.getAttribute('data-promotion') || '';
+      const score = parseInt(getComputedStyle(el).order, 10) || 0;
+
+      return { from, to, promotion, score };
+    });
+  }
+
+  /**
    * Get all legal moves for the given game state.
    *
    * CSS generates pseudo-legal moves (--pseudo-legal: 1) and marks illegal

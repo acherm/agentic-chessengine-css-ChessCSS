@@ -17,9 +17,10 @@ class Search {
    */
   async findBestMove(fen, options = {}) {
     const gameState = GameState.fromFen(fen);
-    const legalMoves = await this.evaluator.getLegalMoves(gameState);
+    const result = await this.evaluator.getBestMove(gameState);
 
-    if (legalMoves.length === 0) {
+    if (!result) {
+      // No legal moves → checkmate or stalemate
       const inCheck = await this.evaluator.isInCheck(gameState);
       return {
         bestMove: null,
@@ -29,17 +30,13 @@ class Search {
       };
     }
 
-    // Pick the move with the highest CSS-assigned score (MVV-LVA)
-    legalMoves.sort((a, b) => b.score - a.score);
-    const best = legalMoves[0];
-    const uci = best.from + best.to + (best.promotion || '');
-
-    this.sendInfo(1, best.score, legalMoves.length);
+    const uci = result.from + result.to + result.promotion;
+    this.sendInfo(1, result.score, 1);
 
     return {
       bestMove: uci,
-      score: best.score,
-      nodes: legalMoves.length,
+      score: result.score,
+      nodes: 1,
       depth: 1,
     };
   }
