@@ -5043,37 +5043,57 @@ function updateMoveList() {
 
 // ── Benchmark: does data-sel on #game trigger full :has() recalc? ──
 // Run from console: benchmarkDataSel()
-window.benchmarkDataSel = function(iterations = 20) {
+// Each iteration forces style recalc (~seconds), so runs async with progress.
+window.benchmarkDataSel = async function(iterations = 5) {
   const squares = ['e2','d2','e4','d7','g1','b8','f3','c6'];
   const results = { dataSel: [], dataT: [], baseline: [] };
 
+  const measure = (label, fn) => new Promise(resolve => {
+    requestAnimationFrame(() => {
+      const t0 = performance.now();
+      fn();
+      game.offsetHeight; // force recalc
+      const dt = performance.now() - t0;
+      resolve(dt);
+    });
+  });
+
   for (let i = 0; i < iterations; i++) {
+    console.log('Iteration ' + (i + 1) + '/' + iterations + '...');
+
     // Measure data-sel (novel attribute, no engine CSS references it)
-    const t0 = performance.now();
-    game.setAttribute('data-sel', squares[i % squares.length]);
-    game.offsetHeight; // force recalc
-    results.dataSel.push(performance.now() - t0);
+    const dtSel = await measure('data-sel', () => {
+      game.setAttribute('data-sel', squares[i % squares.length]);
+    });
+    results.dataSel.push(dtSel);
     game.removeAttribute('data-sel');
     game.offsetHeight;
 
+    // Yield to UI between heavy measurements
+    await new Promise(r => setTimeout(r, 50));
+
     // Measure data-t flip (known to trigger full engine recalc)
     const origT = game.dataset.t;
-    const t1 = performance.now();
-    game.dataset.t = origT === 'w' ? 'b' : 'w';
-    game.offsetHeight;
-    results.dataT.push(performance.now() - t1);
+    const dtT = await measure('data-t', () => {
+      game.dataset.t = origT === 'w' ? 'b' : 'w';
+    });
+    results.dataT.push(dtT);
     game.dataset.t = origT;
     game.offsetHeight;
 
+    await new Promise(r => setTimeout(r, 50));
+
     // Measure baseline (read without mutation)
-    const t2 = performance.now();
-    game.offsetHeight;
-    results.baseline.push(performance.now() - t2);
+    const dtBase = await measure('baseline', () => { /* no mutation */ });
+    results.baseline.push(dtBase);
+
+    console.log('  data-sel: ' + dtSel.toFixed(1) + 'ms  data-t: ' + dtT.toFixed(1) + 'ms  baseline: ' + dtBase.toFixed(1) + 'ms');
   }
 
   const avg = arr => (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(2);
   const med = arr => { const s = [...arr].sort((a,b) => a - b); return s[Math.floor(s.length/2)].toFixed(2); };
 
+  console.log('\n=== Results (' + iterations + ' iterations) ===');
   console.table({
     'data-sel (novel attr)': { avg: avg(results.dataSel) + 'ms', median: med(results.dataSel) + 'ms' },
     'data-t (engine attr)':  { avg: avg(results.dataT)   + 'ms', median: med(results.dataT)   + 'ms' },
@@ -5081,7 +5101,7 @@ window.benchmarkDataSel = function(iterations = 20) {
   });
 
   const ratio = (avg(results.dataSel) / avg(results.dataT) * 100).toFixed(1);
-  console.log('data-sel is ' + ratio + '% of data-t cost. ' +
+  console.log('\ndata-sel is ' + ratio + '% of data-t cost. ' +
     (ratio < 20 ? 'Chrome skips engine recalc — CSS dots/rings are feasible!' :
      ratio < 80 ? 'Partial recalc — might be usable with care.' :
      'Full recalc — CSS dots/rings would be as expensive as engine eval.'));
