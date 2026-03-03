@@ -7,7 +7,7 @@ A chess engine that pushes as much logic as possible into pure CSS. Move generat
 **[Play it in your browser](http://blog.mathieuacher.com/agentic-chessengine-css-ChessCSS/play.html)** (requires Chromium 137+ for CSS `if()` support)
 
 Current status/thoughts:
- * still unclear whether we can move to pure CSS, JavaScript seems needed
+ * after a systematic review of all 16 JS functions, JavaScript is confirmed necessary: CSS cannot write DOM attributes, export computed values, or sequence operations. The remaining ~400 lines of JS are the minimum viable runtime.
  * would love to have the opinions of CSS nerds... 
  * I'm expecting we will see relatively strong CSS engines in near future, thanks to humans and coding agents
  * I had a working version without `if()` and it was not that bad... `if()` breaks a bit the purity of the solution (it's still CSS, and the future, but still, it's easier)
@@ -176,7 +176,7 @@ JavaScript is required for things CSS **structurally cannot do**:
 | `search.js` | Selects which move to play | CSS scores all moves in parallel (the static evaluation), but deciding to actually play one and advance the game requires control flow |
 | `driver.js` / `uci.js` | UCI protocol (stdin/stdout communication) | CSS has no I/O capabilities |
 | `tournament.js` | Multi-game orchestration | Sequential game control, file writing, statistics |
-| `play.html` JS (~400 lines) | Interactive UI: click handling, move animation, promotion dialog, move list display | CSS cannot handle click events or maintain UI state across interactions |
+| `play.html` JS (~400 lines) | Interactive UI: click handling, overlay highlights, promotion dialog, move list display | CSS cannot handle click events or maintain UI state across interactions |
 
 ### A closer look at each JS function
 
@@ -189,20 +189,41 @@ JavaScript is required for things CSS **structurally cannot do**:
 
 **`game-state.js`** -- a mutable position tracker. CSS evaluates a static snapshot; this module handles the state transitions between snapshots: applying moves (updating piece positions, castling rights, en passant targets, halfmove clock) and undoing them.
 
-**`play.html` JavaScript** -- handles user interaction. Key functions:
+**`play.html` JavaScript** (~400 lines, 16 functions) -- handles user interaction and the game loop. The code splits into three categories:
+
+*CSS engine bridges* (read-only, cannot be eliminated):
+- `getLegalMoves()` -- reads `--pseudo-legal` and `--illegal` computed styles from all ~4,000 candidate elements via `getComputedStyle()`
+- `isInCheck()` -- reads `--wk-in-check` / `--bk-in-check` CSS custom properties
+- `engineMove()` -- calls `elementFromPoint(0, 0)` to extract the CSS z-index argmax (the best-scored legal move)
+
+*DOM state mutations* (CSS cannot write attributes):
 - `resetBoard(fen)` -- parses FEN and sets all `data-*` attributes on 64 square elements
-- `applyMove(move)` -- updates DOM for a move (piece movement, captures, castling rook movement, pawn promotion, en passant removal)
-- `getLegalMoves()` -- reads `--pseudo-legal` and `--illegal` computed styles from all candidate elements
-- `engineMove()` -- calls `elementFromPoint(0, 0)` to get the CSS-scored best move
-- `toSan(move, legalMoves)` -- converts UCI moves to Standard Algebraic Notation with disambiguation
+- `applyMove(move)` -- updates DOM for a move (piece positions, castling rights, en passant, turn flip, last-move tracking)
+
+*UI and game orchestration* (sequencing, I/O, visual feedback):
+- `selectSquare(sq)` / `clearSelection()` -- highlight selected piece and legal move indicators (dots/rings) on the UI overlay
+- `updateBoard(lastMove)` -- last-move highlight on the overlay
+- `playMove(move)` / `checkGameEnd()` -- game loop sequencing
+- `toSan(move, legalMoves)` -- Standard Algebraic Notation with disambiguation
+- `showPromotionDialog()` / `updateMoveList()` / `setStatus()` -- UI rendering
 
 ### Could JavaScript be eliminated entirely?
 
-**In the browser (`play.html`):** Almost. CSS handles all chess logic. The remaining JS is "glue": clicking a square, updating `data-piece` attributes after a move, and calling `elementFromPoint()` to read the engine's choice. A hypothetical future CSS spec with `:clicked` pseudo-classes and attribute mutation capabilities could theoretically eliminate this, but no such spec exists.
+**In the browser (`play.html`):** No, and the reasons are structural, not accidental. A systematic review of all 16 JS functions reveals three hard barriers:
+
+1. **CSS cannot write to the DOM.** Moving a piece from e2 to e4 requires changing `data-p` attributes on two elements, updating castling rights, flipping the turn, and setting the en passant target. CSS can *match* attribute patterns but has no mechanism to *mutate* them. `applyMove()` and `resetBoard()` are irreplaceable.
+
+2. **CSS cannot export computed values.** The CSS engine computes `--pseudo-legal`, `--illegal`, and `--wk-in-check` via `:has()` selectors, but there is no CSS-native way to read these results back. `getComputedStyle()` and `elementFromPoint()` are the only extraction mechanisms. `getLegalMoves()`, `isInCheck()`, and `engineMove()` exist solely for this bridge.
+
+3. **CSS cannot sequence operations.** A chess turn requires: read legal moves → validate user click → apply move → check for game end → trigger engine response. CSS has no control flow, no conditional branching over computed values, and no way to schedule deferred actions.
+
+A pure-CSS click interaction (radio buttons + `:has(:checked)`) was attempted for piece selection but caused Chrome to hang — any DOM mutation inside `#game` triggers re-evaluation of thousands of `:has()` selectors. This is a browser implementation reality: the `:has()` invalidation scope is the entire containing element. The decoupled overlay architecture (`#ui-overlay` as a sibling of `#game`) solves this by keeping all visual feedback mutations outside the engine's CSS recalc zone.
+
+The only functions with *theoretical* CSS alternatives are `updateBoard()` (last-move highlights could use ~256 attribute-matching rules on the overlay) and `setStatus()` (turn indicator could use `content:` with attribute selectors). But both would be more complex and less maintainable than the 6-15 lines of JS they replace, with no performance benefit since they already operate outside `#game`.
 
 **For the UCI engine:** No. The engine needs Puppeteer (a Node.js library) to run Chrome and read computed styles. CSS cannot communicate over stdin/stdout or manage a game loop. The JavaScript here is an irreducible I/O layer.
 
-**The philosophical split:** CSS answers "what are the legal moves and which is best?" -- the intellectual core of a chess engine. JavaScript answers "make it happen" -- clicking, rendering, communicating, and looping. The chess knowledge lives in CSS; the plumbing lives in JavaScript.
+**The philosophical split:** CSS answers "what are the legal moves and which is best?" -- the intellectual core of a chess engine. JavaScript answers "make it happen" -- clicking, rendering, communicating, and looping. The chess knowledge lives in CSS; the plumbing lives in JavaScript. The `#game` div is a pure CSS computation zone (JS writes state in, reads results out); the `#ui-overlay` is a pure JS visual zone (no engine selectors touch it).
 
 ## Getting Started
 
@@ -229,6 +250,23 @@ npm start
 # Run tournament
 npm run tournament -- --rounds 10 --opponent stockfish-skill0
 ```
+
+## Architecture: Decoupled UI Overlay
+
+The `#game` element is a "hot zone" — any DOM mutation inside it triggers re-evaluation of thousands of CSS `:has()` selectors. A pure-CSS approach to move highlighting (radio buttons + `:has(:checked)`) was attempted but caused Chrome to hang due to cascading invalidation.
+
+The solution: a **`#ui-overlay`** layer, a sibling `<div>` positioned on top of `#board` but outside `#game`. It handles all visual feedback (selected square highlight, legal move dots, capture rings, last-move highlight) via class toggles on its own 64 overlay cells. Since it's outside `#game`, these mutations trigger zero engine CSS recalc — piece selection and move indicators appear instantly.
+
+```
+#board-wrap (position: relative)
+├── #game              ← CSS engine zone (data-* attributes, :has() selectors)
+│   ├── #board         ← 64 .sq elements with piece data
+│   └── #candidates    ← ~4,000 .move elements scored by CSS
+└── #ui-overlay        ← JS visual zone (pointer-events: none, z-index: 10)
+    └── 64 .ov cells   ← .selected, .dot, .ring, .last-move classes
+```
+
+## TODO / Future Explorations
 
 ## License
 

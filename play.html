@@ -89,8 +89,43 @@ body {
 #game[data-t="w"] .sq[data-p^="w"] { cursor: pointer; }
 #game[data-t="w"] .sq:not([data-p^="w"]) { cursor: default; }
 /* Highlights */
-#board .sq.selected { background: #f6f669 !important; }
-#board .sq.last-move { background: #aac8e8 !important; }
+/* Board wrap for overlay stacking */
+#board-wrap { position: relative; }
+/* UI Overlay — outside #game, no CSS recalc */
+#ui-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 480px; height: 480px;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  pointer-events: none;
+  z-index: 10;
+  border: 3px solid transparent;
+  border-radius: 4px;
+}
+#ui-overlay .ov { position: relative; }
+#ui-overlay .ov.selected { background: rgba(246, 246, 105, 0.6); }
+#ui-overlay .ov.last-move { background: rgba(170, 200, 232, 0.5); }
+#ui-overlay .ov.dot::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 26%; height: 26%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 50%;
+}
+#ui-overlay .ov.ring::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 90%; height: 90%;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  border: 5px solid rgba(0, 0, 0, 0.15);
+  border-radius: 50%;
+}
 /* Check highlight — driven directly by CSS custom properties from check-detection.css */
 #board .sq[data-p="wK"] { box-shadow: inset 0 0 calc(var(--wk-in-check, 0) * 20px) #ff6b6b; }
 #board .sq[data-p="bK"] { box-shadow: inset 0 0 calc(var(--bk-in-check, 0) * 20px) #ff6b6b; }
@@ -217,6 +252,7 @@ body {
 <body>
 
 <div id="app">
+  <div id="board-wrap">
   <div id="game" data-t="w" data-cwk="1" data-cwq="1" data-cbk="1" data-cbq="1" data-e="none">
     <div id="board">
       <div class="sq" data-s="a8" data-p="bR"></div><div class="sq" data-s="b8" data-p="bN"></div><div class="sq" data-s="c8" data-p="bB"></div><div class="sq" data-s="d8" data-p="bQ"></div><div class="sq" data-s="e8" data-p="bK"></div><div class="sq" data-s="f8" data-p="bB"></div><div class="sq" data-s="g8" data-p="bN"></div><div class="sq" data-s="h8" data-p="bR"></div>
@@ -4472,6 +4508,8 @@ body {
 
     </div>
   </div>
+  <div id="ui-overlay"></div>
+  </div>
   <div id="info-panel">
     <h2>CSS Chess Engine</h2>
     <div id="status">Your turn (White)</div>
@@ -4493,6 +4531,21 @@ const board = document.getElementById('board');
 const sqElements = new Map();
 for (const el of board.querySelectorAll('.sq')) sqElements.set(el.dataset.s, el);
 const candidateEls = document.querySelectorAll('#candidates .move');
+
+// ── Build overlay cells (outside #game — no CSS recalc) ──
+const ovElements = new Map();
+const uiOverlay = document.getElementById('ui-overlay');
+const ranks = ['8','7','6','5','4','3','2','1'];
+const fileLetters = ['a','b','c','d','e','f','g','h'];
+for (const r of ranks) {
+  for (const f of fileLetters) {
+    const div = document.createElement('div');
+    div.className = 'ov';
+    div.dataset.s = f + r;
+    uiOverlay.appendChild(div);
+    ovElements.set(f + r, div);
+  }
+}
 
 // ── UI State ──
 let selectedSquare = null;
@@ -4728,14 +4781,21 @@ function selectSquare(sq) {
 
   currentLegalMoves = getLegalMoves();
 
-  sqElements.get(sq).classList.add('selected');
+  // All visual feedback on overlay (outside #game — instant, no CSS recalc)
+  ovElements.get(sq).classList.add('selected');
+  const seen = new Set();
+  for (const move of currentLegalMoves) {
+    if (move.from !== sq || seen.has(move.to)) continue;
+    seen.add(move.to);
+    ovElements.get(move.to).classList.add(move.captured ? 'ring' : 'dot');
+  }
 }
 
 // ── clearSelection() ──
 function clearSelection() {
   selectedSquare = null;
-  for (const el of sqElements.values()) {
-    el.classList.remove('selected');
+  for (const el of ovElements.values()) {
+    el.classList.remove('selected', 'dot', 'ring');
   }
 }
 
@@ -4815,13 +4875,11 @@ function engineMove() {
 
 // ── updateBoard(lastMove) ──
 function updateBoard(lastMove) {
-  for (const el of sqElements.values()) {
-    el.classList.remove('last-move');
-  }
-
+  // Clear last-move from overlay (not #game .sq)
+  for (const el of ovElements.values()) el.classList.remove('last-move');
   if (lastMove) {
-    sqElements.get(lastMove.from).classList.add('last-move');
-    sqElements.get(lastMove.to).classList.add('last-move');
+    ovElements.get(lastMove.from).classList.add('last-move');
+    ovElements.get(lastMove.to).classList.add('last-move');
   }
 }
 
