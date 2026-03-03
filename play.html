@@ -105,7 +105,6 @@ body {
   border-radius: 4px;
 }
 #ui-overlay .ov { position: relative; }
-#ui-overlay .ov.selected { background: rgba(246, 246, 105, 0.6); }
 /* Last-move highlight — pure CSS via data attributes on #game + sibling combinator */
 #game[data-lf="a1"] ~ #ui-overlay .ov[data-s="a1"],
 #game[data-lt="a1"] ~ #ui-overlay .ov[data-s="a1"],
@@ -237,6 +236,73 @@ body {
 #game[data-lt="h8"] ~ #ui-overlay .ov[data-s="h8"] {
   background: rgba(170, 200, 232, 0.5);
 }
+/* Selected square — pure CSS via data-sel on #game (benchmark: ~0ms, no engine recalc) */
+#game[data-sel="a1"] ~ #ui-overlay .ov[data-s="a1"],
+#game[data-sel="a2"] ~ #ui-overlay .ov[data-s="a2"],
+#game[data-sel="a3"] ~ #ui-overlay .ov[data-s="a3"],
+#game[data-sel="a4"] ~ #ui-overlay .ov[data-s="a4"],
+#game[data-sel="a5"] ~ #ui-overlay .ov[data-s="a5"],
+#game[data-sel="a6"] ~ #ui-overlay .ov[data-s="a6"],
+#game[data-sel="a7"] ~ #ui-overlay .ov[data-s="a7"],
+#game[data-sel="a8"] ~ #ui-overlay .ov[data-s="a8"],
+#game[data-sel="b1"] ~ #ui-overlay .ov[data-s="b1"],
+#game[data-sel="b2"] ~ #ui-overlay .ov[data-s="b2"],
+#game[data-sel="b3"] ~ #ui-overlay .ov[data-s="b3"],
+#game[data-sel="b4"] ~ #ui-overlay .ov[data-s="b4"],
+#game[data-sel="b5"] ~ #ui-overlay .ov[data-s="b5"],
+#game[data-sel="b6"] ~ #ui-overlay .ov[data-s="b6"],
+#game[data-sel="b7"] ~ #ui-overlay .ov[data-s="b7"],
+#game[data-sel="b8"] ~ #ui-overlay .ov[data-s="b8"],
+#game[data-sel="c1"] ~ #ui-overlay .ov[data-s="c1"],
+#game[data-sel="c2"] ~ #ui-overlay .ov[data-s="c2"],
+#game[data-sel="c3"] ~ #ui-overlay .ov[data-s="c3"],
+#game[data-sel="c4"] ~ #ui-overlay .ov[data-s="c4"],
+#game[data-sel="c5"] ~ #ui-overlay .ov[data-s="c5"],
+#game[data-sel="c6"] ~ #ui-overlay .ov[data-s="c6"],
+#game[data-sel="c7"] ~ #ui-overlay .ov[data-s="c7"],
+#game[data-sel="c8"] ~ #ui-overlay .ov[data-s="c8"],
+#game[data-sel="d1"] ~ #ui-overlay .ov[data-s="d1"],
+#game[data-sel="d2"] ~ #ui-overlay .ov[data-s="d2"],
+#game[data-sel="d3"] ~ #ui-overlay .ov[data-s="d3"],
+#game[data-sel="d4"] ~ #ui-overlay .ov[data-s="d4"],
+#game[data-sel="d5"] ~ #ui-overlay .ov[data-s="d5"],
+#game[data-sel="d6"] ~ #ui-overlay .ov[data-s="d6"],
+#game[data-sel="d7"] ~ #ui-overlay .ov[data-s="d7"],
+#game[data-sel="d8"] ~ #ui-overlay .ov[data-s="d8"],
+#game[data-sel="e1"] ~ #ui-overlay .ov[data-s="e1"],
+#game[data-sel="e2"] ~ #ui-overlay .ov[data-s="e2"],
+#game[data-sel="e3"] ~ #ui-overlay .ov[data-s="e3"],
+#game[data-sel="e4"] ~ #ui-overlay .ov[data-s="e4"],
+#game[data-sel="e5"] ~ #ui-overlay .ov[data-s="e5"],
+#game[data-sel="e6"] ~ #ui-overlay .ov[data-s="e6"],
+#game[data-sel="e7"] ~ #ui-overlay .ov[data-s="e7"],
+#game[data-sel="e8"] ~ #ui-overlay .ov[data-s="e8"],
+#game[data-sel="f1"] ~ #ui-overlay .ov[data-s="f1"],
+#game[data-sel="f2"] ~ #ui-overlay .ov[data-s="f2"],
+#game[data-sel="f3"] ~ #ui-overlay .ov[data-s="f3"],
+#game[data-sel="f4"] ~ #ui-overlay .ov[data-s="f4"],
+#game[data-sel="f5"] ~ #ui-overlay .ov[data-s="f5"],
+#game[data-sel="f6"] ~ #ui-overlay .ov[data-s="f6"],
+#game[data-sel="f7"] ~ #ui-overlay .ov[data-s="f7"],
+#game[data-sel="f8"] ~ #ui-overlay .ov[data-s="f8"],
+#game[data-sel="g1"] ~ #ui-overlay .ov[data-s="g1"],
+#game[data-sel="g2"] ~ #ui-overlay .ov[data-s="g2"],
+#game[data-sel="g3"] ~ #ui-overlay .ov[data-s="g3"],
+#game[data-sel="g4"] ~ #ui-overlay .ov[data-s="g4"],
+#game[data-sel="g5"] ~ #ui-overlay .ov[data-s="g5"],
+#game[data-sel="g6"] ~ #ui-overlay .ov[data-s="g6"],
+#game[data-sel="g7"] ~ #ui-overlay .ov[data-s="g7"],
+#game[data-sel="g8"] ~ #ui-overlay .ov[data-s="g8"],
+#game[data-sel="h1"] ~ #ui-overlay .ov[data-s="h1"],
+#game[data-sel="h2"] ~ #ui-overlay .ov[data-s="h2"],
+#game[data-sel="h3"] ~ #ui-overlay .ov[data-s="h3"],
+#game[data-sel="h4"] ~ #ui-overlay .ov[data-s="h4"],
+#game[data-sel="h5"] ~ #ui-overlay .ov[data-s="h5"],
+#game[data-sel="h6"] ~ #ui-overlay .ov[data-s="h6"],
+#game[data-sel="h7"] ~ #ui-overlay .ov[data-s="h7"],
+#game[data-sel="h8"] ~ #ui-overlay .ov[data-s="h8"] {
+  background: rgba(246, 246, 105, 0.6);
+}
 #ui-overlay .ov.dot::after {
   content: '';
   position: absolute;
@@ -259,7 +325,7 @@ body {
 /* Check highlight — driven directly by CSS custom properties from check-detection.css */
 #board .sq[data-p="wK"] { box-shadow: inset 0 0 calc(var(--wk-in-check, 0) * 20px) #ff6b6b; }
 #board .sq[data-p="bK"] { box-shadow: inset 0 0 calc(var(--bk-in-check, 0) * 20px) #ff6b6b; }
-#board .sq:hover:not(.selected) {
+#board .sq:hover {
   filter: brightness(1.1);
 }
 /* Candidates at viewport origin for elementFromPoint(0,0) z-index argmax */
@@ -4880,6 +4946,7 @@ function init() {
 
   resetBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
   game.removeAttribute('data-result');
+  game.removeAttribute('data-sel');
 
   document.getElementById('move-list').innerHTML = '';
 }
@@ -4923,8 +4990,8 @@ function selectSquare(sq) {
 
   currentLegalMoves = getLegalMoves();
 
-  // All visual feedback on overlay (outside #game — instant, no CSS recalc)
-  ovElements.get(sq).classList.add('selected');
+  // Selected highlight via CSS (data-sel on #game — ~0ms, no engine recalc)
+  game.setAttribute('data-sel', sq);
   const seen = new Set();
   for (const move of currentLegalMoves) {
     if (move.from !== sq || seen.has(move.to)) continue;
@@ -4936,8 +5003,9 @@ function selectSquare(sq) {
 // ── clearSelection() ──
 function clearSelection() {
   selectedSquare = null;
+  game.removeAttribute('data-sel');
   for (const el of ovElements.values()) {
-    el.classList.remove('selected', 'dot', 'ring');
+    el.classList.remove('dot', 'ring');
   }
 }
 
