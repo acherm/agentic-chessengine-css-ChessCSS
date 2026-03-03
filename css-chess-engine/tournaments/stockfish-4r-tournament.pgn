@@ -1,0 +1,42 @@
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.02"]
+[Round "1"]
+[White "CSSEngine-d1"]
+[Black "Stockfish-skill0"]
+[Result "0-1"]
+
+1. Nc3 e5 2. Nf3 Nc6 3. d4 exd4 4. Bf4 Bc5 5. e4 Nf6 6. Bd3 dxc3 7. bxc3 O-O 8. O-O Ng4 9. Ne5 Ngxe5 10. Bxe5 Nxe5 11. c4 d5 12. exd5 g6 13. Be4 Re8 14. c3 c6 15. Bd3 a6 16. dxc6 bxc6 17. g4 Rb8 18. g5 Qc7 19. Be4 Ba7 20. c5 Be6 21. Qd4 f5 22. Qe3 Qg7 23. c4 Kh8 24. Qd4 fxe4 25. Qxe4 Bd7 26. Qe3 a5 27. Qd4 Bxc5 28. Qe4 Rbd8 29. Qf4 Bf8 30. Qd4 Bh3 31. Qe4 Bxf1 32. Rxf1 Bd6 33. Qd4 Bb8 34. Qe3 c5 35. Qe4 Bc7 36. f4 Nd7 37. Qd5 Rf8 38. Qe6 a4 39. Qe4 Bb8 40. Qd5 Rde8 41. Qd3 Rd8 42. Qe4 Bc7 43. Qd5 Rde8 44. Qd3 Bxf4 45. Rxf4 Qa1+ 46. Kf2 Qb2+ 47. Kf3 Ne5+ 48. Ke4 Qg2+ 49. Ke3 Nxc4# 0-1
+
+
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.02"]
+[Round "2"]
+[White "Stockfish-skill0"]
+[Black "CSSEngine-d1"]
+[Result "1-0"]
+
+1. d4 Nf6 2. Bf4 Nc6 3. d5 e5 4. Bc1 Bb4+ 5. c3 O-O 6. Bg5 d6 7. Bxf6 gxf6 8. a3 Bf5 9. cxb4 Bxb1 10. Rxb1 Nd4 11. h4 Nc2+ 12. Qxc2 e4 13. g3 f5 14. Rd1 e3 15. fxe3 f4 16. Bh3 fxe3 17. Qd3 f5 18. Qxe3 f4 19. Be6+ Kg7 20. Qd4+ Kg6 21. Qe4+ Kf6 22. Nh3 fxg3 23. Qf3+ Ke5 24. Qh5+ Ke4 25. Rd3 Rf1+ 26. Rxf1 c5 27. Rf4# 1-0
+
+
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.02"]
+[Round "3"]
+[White "CSSEngine-d1"]
+[Black "Stockfish-skill0"]
+[Result "0-1"]
+
+1. Nc3 Nf6 2. Nf3 c6 3. d4 g6 4. Be3 d5 5. Ne5 Bg7 6. Nd3 Ng4 7. f4 Nxe3 8. Ne5 f6 9. f5 Qd6 10. fxg6 hxg6 11. Nd3 f5 12. Nf4 Nd7 13. Ne6 Bf6 14. Nc7+ Qxc7 15. Qd3 Ng4 16. O-O-O e6 17. e4 Nf8 18. exd5 cxd5 19. Qb5+ Bd7 20. Bd3 Bg5+ 21. Kb1 Bh6 22. Qb4 a5 23. Qe7+ Kxe7 24. b4 Qb8 25. bxa5 Nf2 26. g4 g5 27. gxf5 Bc6 28. fxe6 Nxe6 29. Nxd5+ Bxd5 30. Be4 Bxa2+ 31. Kb2 Nxe4 32. d5 Bxd5 33. Rxd5 Rxa5 34. Rxa5 Nd6 35. Re5 Nc4+ 36. Kc3 Nxe5 37. Kd2 Nc5 38. Ke3 Ng4+ 39. Kd4 Qe5+ 40. Kc4 b5+ 41. Kb4 Qe4+ 42. c4 Ne5 43. Kxc5 Rc8+ 44. Kxb5 Qxc4+ 45. Kb6 Rb8+ 46. Ka5 Nc6# 0-1
+
+
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.02"]
+[Round "4"]
+[White "Stockfish-skill0"]
+[Black "CSSEngine-d1"]
+[Result "1-0"]
+
+1. c3 Nf6 2. g3 Nc6 3. d3 e5 4. Bg5 Bd6 5. Nd2 O-O 6. Ngf3 e4 7. dxe4 Ne5 8. Bxf6 gxf6 9. Nd4 f5 10. exf5 Nc4 11. Nxc4 Be5 12. Nd2 Bxd4 13. Bg2 Bxf2+ 14. Kxf2 d5 15. Kf1 Bxf5 16. Nf3 Be4 17. a4 Bxf3 18. exf3 f5 19. Bh3 f4 20. Kg2 fxg3 21. Be6+ Kg7 22. hxg3 c5 23. Rh3 c4 24. Bg4 Kf6 25. Rh6+ Ke5 26. Qd4# 1-0

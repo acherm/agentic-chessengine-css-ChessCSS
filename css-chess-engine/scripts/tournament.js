@@ -6,6 +6,7 @@ const fs = require('fs');
 const { runTournament } = require('../src/tournament');
 const { CssPlayer } = require('../src/players/css-player');
 const { RandomPlayer } = require('../src/players/random-player');
+const { StockfishPlayer } = require('../src/players/stockfish-player');
 const { writeGames } = require('../src/pgn-writer');
 const { estimateElo } = require('../src/elo');
 
@@ -41,7 +42,7 @@ function parseArgs(args) {
 Options:
   --rounds N        Number of games (default: 20)
   --depth N         CSS engine search depth (default: 2)
-  --opponent TYPE   "random" or "css-depth-N" (default: random)
+  --opponent TYPE   "random", "css-depth-N", or "stockfish-skillN" (default: random)
   --pgn FILE        PGN output path (default: tournaments/<date>-tournament.pgn)
   --time-per-move M Max ms per move (default: 5000)`);
         process.exit(0);
@@ -77,9 +78,13 @@ async function main() {
   } else if (opts.opponent.startsWith('css-depth-')) {
     const oppDepth = parseInt(opts.opponent.replace('css-depth-', ''), 10);
     opponent = new CssPlayer({ depth: oppDepth, name: `CSSEngine-d${oppDepth}` });
+  } else if (opts.opponent.startsWith('stockfish')) {
+    const skillMatch = opts.opponent.match(/stockfish-skill(\d+)/);
+    const skill = skillMatch ? parseInt(skillMatch[1], 10) : 0;
+    opponent = new StockfishPlayer({ skill, depth: 1 });
   } else {
     console.error(`Unknown opponent type: ${opts.opponent}`);
-    console.error('Valid options: "random" or "css-depth-N" (e.g., css-depth-1)');
+    console.error('Valid options: "random", "css-depth-N", or "stockfish-skillN"');
     process.exit(1);
   }
   players.push(opponent);
