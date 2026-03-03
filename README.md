@@ -7,7 +7,7 @@ A chess engine that pushes as much logic as possible into pure CSS. Move generat
 **[Play it in your browser](http://blog.mathieuacher.com/agentic-chessengine-css-ChessCSS/play.html)** (requires Chromium 137+ for CSS `if()` support)
 
 Current status/thoughts:
- * after a systematic review of all 16 JS functions, JavaScript is confirmed necessary: CSS cannot write DOM attributes, export computed values, or sequence operations. The remaining ~400 lines of JS are the minimum viable runtime.
+ * after a systematic review of all 15 JS functions, JavaScript is confirmed necessary: CSS cannot write DOM attributes, export computed values, or sequence operations. The remaining ~370 lines of JS are the minimum viable runtime. Last-move highlighting was successfully moved to pure CSS (128 attribute selectors + sibling combinator), proving the boundary can still be pushed.
  * would love to have the opinions of CSS nerds... 
  * I'm expecting we will see relatively strong CSS engines in near future, thanks to humans and coding agents
  * I had a working version without `if()` and it was not that bad... `if()` breaks a bit the purity of the solution (it's still CSS, and the future, but still, it's easier)
@@ -189,7 +189,7 @@ JavaScript is required for things CSS **structurally cannot do**:
 
 **`game-state.js`** -- a mutable position tracker. CSS evaluates a static snapshot; this module handles the state transitions between snapshots: applying moves (updating piece positions, castling rights, en passant targets, halfmove clock) and undoing them.
 
-**`play.html` JavaScript** (~400 lines, 16 functions) -- handles user interaction and the game loop. The code splits into three categories:
+**`play.html` JavaScript** (~370 lines, 15 functions) -- handles user interaction and the game loop. The code splits into three categories:
 
 *CSS engine bridges* (read-only, cannot be eliminated):
 - `getLegalMoves()` -- reads `--pseudo-legal` and `--illegal` computed styles from all ~4,000 candidate elements via `getComputedStyle()`
@@ -198,18 +198,19 @@ JavaScript is required for things CSS **structurally cannot do**:
 
 *DOM state mutations* (CSS cannot write attributes):
 - `resetBoard(fen)` -- parses FEN and sets all `data-*` attributes on 64 square elements
-- `applyMove(move)` -- updates DOM for a move (piece positions, castling rights, en passant, turn flip, last-move tracking)
+- `applyMove(move)` -- updates DOM for a move (piece positions, castling rights, en passant, turn flip, last-move tracking via `data-lf`/`data-lt` which drives CSS overlay highlight)
 
 *UI and game orchestration* (sequencing, I/O, visual feedback):
 - `selectSquare(sq)` / `clearSelection()` -- highlight selected piece and legal move indicators (dots/rings) on the UI overlay
-- `updateBoard(lastMove)` -- last-move highlight on the overlay
 - `playMove(move)` / `checkGameEnd()` -- game loop sequencing
 - `toSan(move, legalMoves)` -- Standard Algebraic Notation with disambiguation
 - `showPromotionDialog()` / `updateMoveList()` / `setStatus()` -- UI rendering
 
+Note: last-move highlighting was originally a JS function (`updateBoard()`) but has been replaced with pure CSS -- 128 attribute selectors match `data-lf`/`data-lt` on `#game` and apply a background to the corresponding overlay cells via the `~` sibling combinator. The browser handles "clearing" automatically: when the attribute value changes, the old selector stops matching.
+
 ### Could JavaScript be eliminated entirely?
 
-**In the browser (`play.html`):** No, and the reasons are structural, not accidental. A systematic review of all 16 JS functions reveals three hard barriers:
+**In the browser (`play.html`):** No, and the reasons are structural, not accidental. A systematic review of all 15 JS functions reveals three hard barriers:
 
 1. **CSS cannot write to the DOM.** Moving a piece from e2 to e4 requires changing `data-p` attributes on two elements, updating castling rights, flipping the turn, and setting the en passant target. CSS can *match* attribute patterns but has no mechanism to *mutate* them. `applyMove()` and `resetBoard()` are irreplaceable.
 
@@ -219,11 +220,11 @@ JavaScript is required for things CSS **structurally cannot do**:
 
 A pure-CSS click interaction (radio buttons + `:has(:checked)`) was attempted for piece selection but caused Chrome to hang — any DOM mutation inside `#game` triggers re-evaluation of thousands of `:has()` selectors. This is a browser implementation reality: the `:has()` invalidation scope is the entire containing element. The decoupled overlay architecture (`#ui-overlay` as a sibling of `#game`) solves this by keeping all visual feedback mutations outside the engine's CSS recalc zone.
 
-The only functions with *theoretical* CSS alternatives are `updateBoard()` (last-move highlights could use ~256 attribute-matching rules on the overlay) and `setStatus()` (turn indicator could use `content:` with attribute selectors). But both would be more complex and less maintainable than the 6-15 lines of JS they replace, with no performance benefit since they already operate outside `#game`.
+`updateBoard()` was the first function to cross over: last-move highlighting is now pure CSS, using 128 attribute selectors that match `data-lf`/`data-lt` on `#game` and style the corresponding overlay cells via the `~` sibling combinator. The browser automatically handles "clearing" old highlights when attribute values change -- no JS loop needed. The remaining candidate for CSS is `setStatus()` (turn indicator could use `content:` with attribute selectors), but endgame messages depend on computed state that CSS can't branch on.
 
 **For the UCI engine:** No. The engine needs Puppeteer (a Node.js library) to run Chrome and read computed styles. CSS cannot communicate over stdin/stdout or manage a game loop. The JavaScript here is an irreducible I/O layer.
 
-**The philosophical split:** CSS answers "what are the legal moves and which is best?" -- the intellectual core of a chess engine. JavaScript answers "make it happen" -- clicking, rendering, communicating, and looping. The chess knowledge lives in CSS; the plumbing lives in JavaScript. The `#game` div is a pure CSS computation zone (JS writes state in, reads results out); the `#ui-overlay` is a pure JS visual zone (no engine selectors touch it).
+**The philosophical split:** CSS answers "what are the legal moves and which is best?" -- the intellectual core of a chess engine. JavaScript answers "make it happen" -- clicking, rendering, communicating, and looping. The chess knowledge lives in CSS; the plumbing lives in JavaScript. The `#game` div is a pure CSS computation zone (JS writes state in, reads results out); `#ui-overlay` is a hybrid -- last-move highlighting is pure CSS (attribute selectors + sibling combinator), while selection/legal-move indicators remain JS-driven (they depend on `getComputedStyle` results that CSS can't re-export to itself).
 
 ## Getting Started
 
@@ -255,15 +256,20 @@ npm run tournament -- --rounds 10 --opponent stockfish-skill0
 
 The `#game` element is a "hot zone" — any DOM mutation inside it triggers re-evaluation of thousands of CSS `:has()` selectors. A pure-CSS approach to move highlighting (radio buttons + `:has(:checked)`) was attempted but caused Chrome to hang due to cascading invalidation.
 
-The solution: a **`#ui-overlay`** layer, a sibling `<div>` positioned on top of `#board` but outside `#game`. It handles all visual feedback (selected square highlight, legal move dots, capture rings, last-move highlight) via class toggles on its own 64 overlay cells. Since it's outside `#game`, these mutations trigger zero engine CSS recalc — piece selection and move indicators appear instantly.
+The solution: a **`#ui-overlay`** layer, a sibling `<div>` positioned on top of `#board` but outside `#game`. It handles all visual feedback (selected square highlight, legal move dots, capture rings, last-move highlight) on its own 64 overlay cells. Since it's outside `#game`, these mutations trigger zero engine CSS recalc — piece selection and move indicators appear instantly.
+
+The overlay uses two complementary approaches:
+- **JS-driven classes** (`.selected`, `.dot`, `.ring`) for interactive feedback that depends on computed legal moves
+- **Pure CSS attribute selectors** for last-move highlighting: 128 rules match `data-lf`/`data-lt` on `#game` and style the corresponding `.ov` cell via the `~` sibling combinator — no JS needed
 
 ```
 #board-wrap (position: relative)
 ├── #game              ← CSS engine zone (data-* attributes, :has() selectors)
 │   ├── #board         ← 64 .sq elements with piece data
 │   └── #candidates    ← ~4,000 .move elements scored by CSS
-└── #ui-overlay        ← JS visual zone (pointer-events: none, z-index: 10)
-    └── 64 .ov cells   ← .selected, .dot, .ring, .last-move classes
+└── #ui-overlay        ← visual feedback layer (pointer-events: none, z-index: 10)
+    └── 64 .ov cells   ← JS classes: .selected, .dot, .ring
+                          CSS-driven: last-move highlight via #game[data-lf/lt] ~ selectors
 ```
 
 ## TODO / Future Explorations
