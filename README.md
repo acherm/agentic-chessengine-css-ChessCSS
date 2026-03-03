@@ -1,0 +1,195 @@
+# ChessCSS: A Chess Engine in CSS
+
+**Authors:** Mathieu Acher and [Claude Code](https://claude.ai/claude-code) (Anthropic)
+
+A chess engine that pushes as much logic as possible into pure CSS. Move generation, legality checking, check detection, position evaluation, and move scoring are all expressed as CSS rules using `:has()` selectors, custom properties, and the new `if()` function. JavaScript handles only what CSS structurally cannot: game loop control, I/O, and reading computed styles back from the browser.
+
+**[Play it in your browser](http://blog.mathieuacher.com/agentic-chessengine-css-ChessCSS/play.html)** (requires Chromium 137+ for CSS `if()` support)
+
+## How It Works
+
+The core idea: a chess position is represented as HTML elements with `data-*` attributes, and CSS rules "compute" everything by matching patterns in the DOM.
+
+**Board representation.** 64 `<div class="sq">` elements carry `data-sq="e4"` and `data-piece="wN"`. A root `#game` element carries `data-turn`, castling rights, en passant square, and last-move tracking. All ~4,000 candidate moves are pre-allocated as `<div class="move" data-from="..." data-to="...">` elements.
+
+**Move generation (CSS).** Rules like this detect pseudo-legal moves:
+
+```css
+/* White knight on b1 can jump to c3 if c3 isn't occupied by white */
+#game[data-turn="w"]:has(.sq[data-sq="b1"][data-piece="wN"])
+  :has(.sq[data-sq="c3"]:not([data-piece^="w"]))
+  .move[data-from="b1"][data-to="c3"] { --pseudo-legal: 1; }
+```
+
+**Check detection (CSS).** Sliding-piece attacks use chained `:has()` selectors requiring intermediate squares to be empty:
+
+```css
+/* Black rook on a8 checks white king on a1 if a2-a7 are empty */
+#board:has(.sq[data-sq="a1"][data-piece="wK"])
+  :has(.sq[data-sq="a8"]:is([data-piece="bR"],[data-piece="bQ"]))
+  :has(.sq[data-sq="a7"][data-piece="empty"])
+  :has(.sq[data-sq="a6"][data-piece="empty"])
+  /* ...intermediate squares... */
+  { --wk-in-check: 1; }
+```
+
+**Legality (CSS).** Pin detection constrains pieces to move along the pin line. Castling rules verify no check on intermediate squares. En passant validates the captured pawn position. All via `:has()`.
+
+**Move scoring (CSS).** The `--move-score` custom property combines multiple signals using the CSS `if()` function (Chromium 137+):
+
+- **MVV-LVA capture ordering** (capture victim value vs. attacker value)
+- **SEE-like threat penalty** (cheapest attacker on destination: king > pawn > knight > bishop > rook, halved if defended)
+- **Centrality bonus** (destination square value)
+- **Development bonus** (encourage piece activity in the opening)
+- **Check bonus** (+40 for moves that give check, verified by piece type)
+- **Discovered attack penalty** (detects sliding piece exposure)
+- **Reversal penalty** (discourages shuffling the same piece back and forth)
+
+**Best move selection (CSS).** Each move's `z-index` equals `--move-score + 100000`. The highest-scored legal move is the topmost element at position (0,0). A single `elementFromPoint(0, 0)` call returns the best move, O(1).
+
+## Architecture
+
+```
+play.html              Interactive UI (human vs engine in browser)
+
+css/
+  move-generation.css    7,649 rules  -  Pseudo-legal move detection
+  legality.css          16,161 rules  -  Pin/check/castling legality filtering
+  check-detection.css    3,781 rules  -  King-in-check detection
+  eval.css                 769 rules  -  Material + piece-square tables
+  dynamic-move-scoring.css 26,656 rules - SEE, threats, checks, scoring
+  move-scoring.css          55 rules  -  Static capture/bonus scoring
+                        -----------
+                        55,071 rules total (~17 MB of CSS)
+
+scripts/
+  generate-movegen-css.js       Generate move-generation.css
+  generate-check-css.js         Generate check-detection.css
+  generate-movescoring-css.js   Generate dynamic-move-scoring.css
+  generate-css.js               Generate eval.css
+  tournament.js                 Run multi-game tournaments
+
+src/
+  css-evaluator.js       Puppeteer bridge: read CSS computed styles
+  board-renderer.js      Render position as HTML for CSS evaluation
+  game-state.js          Position state (FEN, apply/undo moves)
+  search.js              Move selection (greedy depth-1)
+  driver.js              UCI engine entry point
+  uci.js                 UCI protocol parser
+  players/               Tournament players (CSS, random, Stockfish)
+
+test/                    51 tests (move generation, check, eval, UCI)
+```
+
+## Chess Features
+
+| Feature | Implementation |
+|---------|---------------|
+| All piece moves (P, N, B, R, Q, K) | CSS `:has()` rules |
+| Castling (O-O, O-O-O) | CSS (rights tracking in JS) |
+| En passant | CSS (target square tracking in JS) |
+| Pawn promotion (Q/R/B/N) | CSS + JS UI dialog |
+| Check detection | CSS |
+| Pin detection | CSS |
+| Checkmate / stalemate | CSS (no legal moves) + JS (game end) |
+| Threefold repetition | JS (chess.js) |
+| 50-move rule | JS (halfmove clock) |
+| Insufficient material draw | JS (chess.js) |
+
+## Performance Assessment
+
+The engine plays **greedy depth-1**: it picks the single highest-scored move with no lookahead. The "depth-2" refers to the CSS scoring layer, which looks one ply ahead to detect threats, defenses, and discovered attacks statically.
+
+**vs Random player:** Wins convincingly (100% win rate in testing). The CSS scoring produces sensible moves: develops pieces, captures material, avoids hanging pieces, and finds checkmates.
+
+**vs Stockfish skill 0:** Loses consistently. Even at its weakest setting, Stockfish searches several plies deep, giving it a decisive advantage over greedy evaluation.
+
+**Speed:** ~17 seconds per move at depth 2 (Puppeteer + Chrome rendering 55K CSS rules). The bottleneck is browser style computation, not JavaScript.
+
+**Strength estimate:** Roughly 500-800 Elo based on tournament results. Stronger than random, weaker than any real engine. The CSS evaluation is surprisingly good at tactical awareness (threats, pins, discovered attacks) but lacks the ability to plan ahead.
+
+## CSS vs JavaScript: What Each Does and Why
+
+### What CSS handles (the hard part)
+
+CSS expresses the **chess rules** and **evaluation** -- the parts that are usually the core of any chess engine:
+
+- **Move generation**: 7,649 rules enumerate every possible piece move on every square, handling pawn double-pushes, knight L-shapes, sliding piece rays, and special moves. Each rule sets `--pseudo-legal: 1` on matching move candidates.
+
+- **Legality filtering**: 16,161 rules detect pins (pieces constrained to move along the pin line between their king and an attacking slider), castling legality (no check on king's path, rights not lost), and en passant edge cases.
+
+- **Check detection**: 3,781 rules determine if a king is in check by testing all attack directions (knight hops, pawn diagonals, sliding rays) with `:has()` chains.
+
+- **Position evaluation**: 769 rules assign material values and piece-square bonuses, read via `getComputedStyle()`.
+
+- **Move scoring**: 26,656 rules compute a composite score for each move using CSS `if()` and `style()` queries. This is the most sophisticated CSS layer: it performs SEE-like threat analysis (cheapest attacker lookup, defense detection), discovers sliding piece attacks, identifies check opportunities, penalizes reversals, and rewards development. The `z-index` property encodes the final score, making the best move the topmost DOM element.
+
+### What JavaScript handles (and why)
+
+JavaScript is required for things CSS **structurally cannot do**:
+
+| JS Module | Purpose | Why CSS can't do it |
+|-----------|---------|-------------------|
+| `css-evaluator.js` | Reads CSS computed styles via Puppeteer | CSS has no way to "output" values; JavaScript must call `getComputedStyle()` or `elementFromPoint()` to read what CSS computed |
+| `board-renderer.js` | Updates DOM `data-*` attributes to reflect position changes | CSS can match patterns but cannot mutate the DOM; applying a move requires changing `data-piece` attributes |
+| `game-state.js` | Tracks position state, castling rights, en passant, halfmove clock | CSS has no persistent memory across "turns"; each position must be set up in the DOM for CSS to evaluate |
+| `search.js` | Selects which move to play | CSS scores all moves in parallel (the static evaluation), but deciding to actually play one and advance the game requires control flow |
+| `driver.js` / `uci.js` | UCI protocol (stdin/stdout communication) | CSS has no I/O capabilities |
+| `tournament.js` | Multi-game orchestration | Sequential game control, file writing, statistics |
+| `play.html` JS (~400 lines) | Interactive UI: click handling, move animation, promotion dialog, move list display | CSS cannot handle click events or maintain UI state across interactions |
+
+### A closer look at each JS function
+
+**`css-evaluator.js`** -- the critical bridge. Launches headless Chrome, loads all CSS into a single page, then mutates `data-*` attributes to set positions. Three key operations:
+- `getLegalMoves()`: iterates all ~4,000 candidate move elements, reads `--pseudo-legal` and `--illegal` CSS properties to filter legal moves
+- `getBestMove()`: calls `elementFromPoint(0, 0)` -- returns the element with the highest `z-index`, which is the highest-scored legal move. A single DOM call replaces the entire "search"
+- `evaluate()`: sums `--piece-value` across all 64 squares
+
+**`board-renderer.js`** -- generates the HTML that CSS needs. The `_updateMoveGenPosition()` method is optimized to only change `data-piece` attributes that differ from the current DOM state, avoiding full page rebuilds.
+
+**`game-state.js`** -- a mutable position tracker. CSS evaluates a static snapshot; this module handles the state transitions between snapshots: applying moves (updating piece positions, castling rights, en passant targets, halfmove clock) and undoing them.
+
+**`play.html` JavaScript** -- handles user interaction. Key functions:
+- `resetBoard(fen)` -- parses FEN and sets all `data-*` attributes on 64 square elements
+- `applyMove(move)` -- updates DOM for a move (piece movement, captures, castling rook movement, pawn promotion, en passant removal)
+- `getLegalMoves()` -- reads `--pseudo-legal` and `--illegal` computed styles from all candidate elements
+- `engineMove()` -- calls `elementFromPoint(0, 0)` to get the CSS-scored best move
+- `toSan(move, legalMoves)` -- converts UCI moves to Standard Algebraic Notation with disambiguation
+
+### Could JavaScript be eliminated entirely?
+
+**In the browser (`play.html`):** Almost. CSS handles all chess logic. The remaining JS is "glue": clicking a square, updating `data-piece` attributes after a move, and calling `elementFromPoint()` to read the engine's choice. A hypothetical future CSS spec with `:clicked` pseudo-classes and attribute mutation capabilities could theoretically eliminate this, but no such spec exists.
+
+**For the UCI engine:** No. The engine needs Puppeteer (a Node.js library) to run Chrome and read computed styles. CSS cannot communicate over stdin/stdout or manage a game loop. The JavaScript here is an irreducible I/O layer.
+
+**The philosophical split:** CSS answers "what are the legal moves and which is best?" -- the intellectual core of a chess engine. JavaScript answers "make it happen" -- clicking, rendering, communicating, and looping. The chess knowledge lives in CSS; the plumbing lives in JavaScript.
+
+## Getting Started
+
+**Requirements:** Node.js 18+, Chromium 137+ (bundled with Puppeteer)
+
+```bash
+npm install
+
+# Generate all CSS (only needed if modifying generators)
+npm run generate-movegen-css
+npm run generate-check-css
+npm run generate-movescoring-css
+npm run generate-legality-css
+
+# Run tests
+npm test
+
+# Play in browser
+npm run play        # opens http://localhost:8080/play.html
+
+# Run as UCI engine
+npm start
+
+# Run tournament
+npm run tournament -- --rounds 10 --opponent stockfish-skill0
+```
+
+## License
+
+MIT
