@@ -62,44 +62,44 @@ function getSlidingRay(file, rank, df, dr) {
  */
 function generateRule(color, piece, from, to, between, extras = {}) {
   const opponent = color === 'w' ? 'b' : 'w';
-  const parts = [`#game[data-turn="${color}"]`];
+  const parts = [`#game[data-t="${color}"]`];
 
   // Source square has the piece
-  parts.push(`:has(.sq[data-sq="${from}"][data-piece="${piece}"])`);
+  parts.push(`:has(.sq[data-s="${from}"][data-p="${piece}"])`);
 
   // All between squares must be empty
   for (const sq of between) {
-    parts.push(`:has(.sq[data-sq="${sq}"][data-piece="empty"])`);
+    parts.push(`:has(.sq[data-s="${sq}"][data-p="empty"])`);
   }
 
   // Destination square conditions
   if (extras.capture === 'only') {
     // Must capture opponent piece
-    parts.push(`:has(.sq[data-sq="${to}"][data-piece^="${opponent}"])`);
+    parts.push(`:has(.sq[data-s="${to}"][data-p^="${opponent}"])`);
   } else if (extras.nonCapture) {
     // Must be empty
-    parts.push(`:has(.sq[data-sq="${to}"][data-piece="empty"])`);
+    parts.push(`:has(.sq[data-s="${to}"][data-p="empty"])`);
   } else if (!extras.ep && !extras.castle) {
     // Not friendly piece (can be empty or opponent)
-    parts.push(`:has(.sq[data-sq="${to}"]:not([data-piece^="${color}"]):not([data-piece="empty"]))`);
+    parts.push(`:has(.sq[data-s="${to}"]:not([data-p^="${color}"]):not([data-p="empty"]))`);
     // Actually for standard moves: not own piece (capture or move to empty)
   }
 
   // Build the move selector
-  let moveSel = `.move[data-from="${from}"][data-to="${to}"]`;
+  let moveSel = `.move[data-f="${from}"][data-d="${to}"]`;
 
   if (extras.promotion) {
-    moveSel += `[data-promotion]`;
+    moveSel += `[data-pr]`;
   } else if (!extras.ep && !extras.castle) {
-    moveSel += `:not([data-promotion]):not([data-ep]):not([data-castle])`;
+    moveSel += `:not([data-pr]):not([data-e]):not([data-c])`;
   }
 
   if (extras.ep) {
-    moveSel += `[data-ep="true"]`;
+    moveSel += `[data-e="true"]`;
   }
 
   if (extras.castle) {
-    moveSel += `[data-castle="${extras.castle}"]`;
+    moveSel += `[data-c="${extras.castle}"]`;
   }
 
   // Combine selector with newlines for readability
@@ -122,7 +122,7 @@ function generateKnightRules(color) {
         const to = sqName(tf, tr);
 
         // Knight can move to any square not occupied by own piece
-        const sel = `#game[data-turn="${color}"]:has(.sq[data-sq="${from}"][data-piece="${piece}"]):has(.sq[data-sq="${to}"]:not([data-piece^="${color}"])) .move[data-from="${from}"][data-to="${to}"]:not([data-promotion]):not([data-ep]):not([data-castle]) { --pseudo-legal: 1; }`;
+        const sel = `#game[data-t="${color}"]:has(.sq[data-s="${from}"][data-p="${piece}"]):has(.sq[data-s="${to}"]:not([data-p^="${color}"])) .move[data-f="${from}"][data-d="${to}"]:not([data-pr]):not([data-e]):not([data-c]) { --pseudo-legal: 1; }`;
         rules.push(sel);
       }
     }
@@ -143,7 +143,7 @@ function generateKingRules(color) {
         if (!isValid(tf, tr)) continue;
         const to = sqName(tf, tr);
 
-        const sel = `#game[data-turn="${color}"]:has(.sq[data-sq="${from}"][data-piece="${piece}"]):has(.sq[data-sq="${to}"]:not([data-piece^="${color}"])) .move[data-from="${from}"][data-to="${to}"]:not([data-promotion]):not([data-ep]):not([data-castle]) { --pseudo-legal: 1; }`;
+        const sel = `#game[data-t="${color}"]:has(.sq[data-s="${from}"][data-p="${piece}"]):has(.sq[data-s="${to}"]:not([data-p^="${color}"])) .move[data-f="${from}"][data-d="${to}"]:not([data-pr]):not([data-e]):not([data-c]) { --pseudo-legal: 1; }`;
         rules.push(sel);
       }
     }
@@ -165,12 +165,12 @@ function generateSlidingRules(color, pieceType, directions) {
           const betweenNames = between.map(([bf, br]) => sqName(bf, br));
 
           // Build has-conditions: all between squares must be empty, target not own piece
-          let sel = `#game[data-turn="${color}"]:has(.sq[data-sq="${from}"][data-piece="${piece}"])`;
+          let sel = `#game[data-t="${color}"]:has(.sq[data-s="${from}"][data-p="${piece}"])`;
           for (const bsq of betweenNames) {
-            sel += `:has(.sq[data-sq="${bsq}"][data-piece="empty"])`;
+            sel += `:has(.sq[data-s="${bsq}"][data-p="empty"])`;
           }
-          sel += `:has(.sq[data-sq="${to}"]:not([data-piece^="${color}"]))`;
-          sel += ` .move[data-from="${from}"][data-to="${to}"]:not([data-promotion]):not([data-ep]):not([data-castle]) { --pseudo-legal: 1; }`;
+          sel += `:has(.sq[data-s="${to}"]:not([data-p^="${color}"]))`;
+          sel += ` .move[data-f="${from}"][data-d="${to}"]:not([data-pr]):not([data-e]):not([data-c]) { --pseudo-legal: 1; }`;
           rules.push(sel);
         }
       }
@@ -201,11 +201,11 @@ function generatePawnRules(color) {
         const to = sqName(f, pushR);
         if (pushR === promoRank) {
           // Promotion push
-          const sel = `#game[data-turn="${color}"]:has(.sq[data-sq="${from}"][data-piece="${piece}"]):has(.sq[data-sq="${to}"][data-piece="empty"]) .move[data-from="${from}"][data-to="${to}"][data-promotion] { --pseudo-legal: 1; }`;
+          const sel = `#game[data-t="${color}"]:has(.sq[data-s="${from}"][data-p="${piece}"]):has(.sq[data-s="${to}"][data-p="empty"]) .move[data-f="${from}"][data-d="${to}"][data-pr] { --pseudo-legal: 1; }`;
           rules.push(sel);
         } else {
           // Normal push
-          const sel = `#game[data-turn="${color}"]:has(.sq[data-sq="${from}"][data-piece="${piece}"]):has(.sq[data-sq="${to}"][data-piece="empty"]) .move[data-from="${from}"][data-to="${to}"]:not([data-promotion]):not([data-ep]):not([data-castle]) { --pseudo-legal: 1; }`;
+          const sel = `#game[data-t="${color}"]:has(.sq[data-s="${from}"][data-p="${piece}"]):has(.sq[data-s="${to}"][data-p="empty"]) .move[data-f="${from}"][data-d="${to}"]:not([data-pr]):not([data-e]):not([data-c]) { --pseudo-legal: 1; }`;
           rules.push(sel);
         }
       }
@@ -217,7 +217,7 @@ function generatePawnRules(color) {
         if (isValid(f, dblR)) {
           const mid = sqName(f, midR);
           const to = sqName(f, dblR);
-          const sel = `#game[data-turn="${color}"]:has(.sq[data-sq="${from}"][data-piece="${piece}"]):has(.sq[data-sq="${mid}"][data-piece="empty"]):has(.sq[data-sq="${to}"][data-piece="empty"]) .move[data-from="${from}"][data-to="${to}"]:not([data-promotion]):not([data-ep]):not([data-castle]) { --pseudo-legal: 1; }`;
+          const sel = `#game[data-t="${color}"]:has(.sq[data-s="${from}"][data-p="${piece}"]):has(.sq[data-s="${mid}"][data-p="empty"]):has(.sq[data-s="${to}"][data-p="empty"]) .move[data-f="${from}"][data-d="${to}"]:not([data-pr]):not([data-e]):not([data-c]) { --pseudo-legal: 1; }`;
           rules.push(sel);
         }
       }
@@ -231,11 +231,11 @@ function generatePawnRules(color) {
 
         if (cr === promoRank) {
           // Promotion capture
-          const sel = `#game[data-turn="${color}"]:has(.sq[data-sq="${from}"][data-piece="${piece}"]):has(.sq[data-sq="${to}"][data-piece^="${opponent}"]) .move[data-from="${from}"][data-to="${to}"][data-promotion] { --pseudo-legal: 1; }`;
+          const sel = `#game[data-t="${color}"]:has(.sq[data-s="${from}"][data-p="${piece}"]):has(.sq[data-s="${to}"][data-p^="${opponent}"]) .move[data-f="${from}"][data-d="${to}"][data-pr] { --pseudo-legal: 1; }`;
           rules.push(sel);
         } else {
           // Normal capture
-          const sel = `#game[data-turn="${color}"]:has(.sq[data-sq="${from}"][data-piece="${piece}"]):has(.sq[data-sq="${to}"][data-piece^="${opponent}"]) .move[data-from="${from}"][data-to="${to}"]:not([data-promotion]):not([data-ep]):not([data-castle]) { --pseudo-legal: 1; }`;
+          const sel = `#game[data-t="${color}"]:has(.sq[data-s="${from}"][data-p="${piece}"]):has(.sq[data-s="${to}"][data-p^="${opponent}"]) .move[data-f="${from}"][data-d="${to}"]:not([data-pr]):not([data-e]):not([data-c]) { --pseudo-legal: 1; }`;
           rules.push(sel);
         }
       }
@@ -249,8 +249,8 @@ function generatePawnRules(color) {
           const cr = r + dir;
           if (!isValid(cf, cr)) continue;
           const to = sqName(cf, cr);
-          // EP: data-ep on #game must match the target square
-          const sel = `#game[data-turn="${color}"][data-ep="${to}"]:has(.sq[data-sq="${from}"][data-piece="${piece}"]) .move[data-from="${from}"][data-to="${to}"][data-ep="true"] { --pseudo-legal: 1; }`;
+          // EP: data-e on #game must match the target square
+          const sel = `#game[data-t="${color}"][data-e="${to}"]:has(.sq[data-s="${from}"][data-p="${piece}"]) .move[data-f="${from}"][data-d="${to}"][data-e="true"] { --pseudo-legal: 1; }`;
           rules.push(sel);
         }
       }
@@ -263,16 +263,16 @@ function generateCastlingRules() {
   const rules = [];
 
   // White kingside: e1-g1, f1 and g1 empty, rook on h1
-  rules.push(`#game[data-turn="w"][data-castle-wk="1"]:has(.sq[data-sq="e1"][data-piece="wK"]):has(.sq[data-sq="h1"][data-piece="wR"]):has(.sq[data-sq="f1"][data-piece="empty"]):has(.sq[data-sq="g1"][data-piece="empty"]) .move[data-from="e1"][data-to="g1"][data-castle="wk"] { --pseudo-legal: 1; }`);
+  rules.push(`#game[data-t="w"][data-cwk="1"]:has(.sq[data-s="e1"][data-p="wK"]):has(.sq[data-s="h1"][data-p="wR"]):has(.sq[data-s="f1"][data-p="empty"]):has(.sq[data-s="g1"][data-p="empty"]) .move[data-f="e1"][data-d="g1"][data-c="wk"] { --pseudo-legal: 1; }`);
 
   // White queenside: e1-c1, b1,c1,d1 empty, rook on a1
-  rules.push(`#game[data-turn="w"][data-castle-wq="1"]:has(.sq[data-sq="e1"][data-piece="wK"]):has(.sq[data-sq="a1"][data-piece="wR"]):has(.sq[data-sq="b1"][data-piece="empty"]):has(.sq[data-sq="c1"][data-piece="empty"]):has(.sq[data-sq="d1"][data-piece="empty"]) .move[data-from="e1"][data-to="c1"][data-castle="wq"] { --pseudo-legal: 1; }`);
+  rules.push(`#game[data-t="w"][data-cwq="1"]:has(.sq[data-s="e1"][data-p="wK"]):has(.sq[data-s="a1"][data-p="wR"]):has(.sq[data-s="b1"][data-p="empty"]):has(.sq[data-s="c1"][data-p="empty"]):has(.sq[data-s="d1"][data-p="empty"]) .move[data-f="e1"][data-d="c1"][data-c="wq"] { --pseudo-legal: 1; }`);
 
   // Black kingside: e8-g8, f8 and g8 empty, rook on h8
-  rules.push(`#game[data-turn="b"][data-castle-bk="1"]:has(.sq[data-sq="e8"][data-piece="bK"]):has(.sq[data-sq="h8"][data-piece="bR"]):has(.sq[data-sq="f8"][data-piece="empty"]):has(.sq[data-sq="g8"][data-piece="empty"]) .move[data-from="e8"][data-to="g8"][data-castle="bk"] { --pseudo-legal: 1; }`);
+  rules.push(`#game[data-t="b"][data-cbk="1"]:has(.sq[data-s="e8"][data-p="bK"]):has(.sq[data-s="h8"][data-p="bR"]):has(.sq[data-s="f8"][data-p="empty"]):has(.sq[data-s="g8"][data-p="empty"]) .move[data-f="e8"][data-d="g8"][data-c="bk"] { --pseudo-legal: 1; }`);
 
   // Black queenside: e8-c8, b8,c8,d8 empty, rook on a8
-  rules.push(`#game[data-turn="b"][data-castle-bq="1"]:has(.sq[data-sq="e8"][data-piece="bK"]):has(.sq[data-sq="a8"][data-piece="bR"]):has(.sq[data-sq="b8"][data-piece="empty"]):has(.sq[data-sq="c8"][data-piece="empty"]):has(.sq[data-sq="d8"][data-piece="empty"]) .move[data-from="e8"][data-to="c8"][data-castle="bq"] { --pseudo-legal: 1; }`);
+  rules.push(`#game[data-t="b"][data-cbq="1"]:has(.sq[data-s="e8"][data-p="bK"]):has(.sq[data-s="a8"][data-p="bR"]):has(.sq[data-s="b8"][data-p="empty"]):has(.sq[data-s="c8"][data-p="empty"]):has(.sq[data-s="d8"][data-p="empty"]) .move[data-f="e8"][data-d="c8"][data-c="bq"] { --pseudo-legal: 1; }`);
 
   return rules;
 }

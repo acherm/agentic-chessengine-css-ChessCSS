@@ -8,8 +8,8 @@ const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
  * Convert a FEN string into an HTML document with 64 sibling <div> elements
  * inside a #board container. Each div has:
  *   class="sq"
- *   data-piece="wP" | "bK" | "empty" etc.
- *   data-sq="a1" .. "h8"
+ *   data-p="wP" | "bK" | "empty" etc.
+ *   data-s="a1" .. "h8"
  *
  * An #eval div follows for CSS counter readout.
  */
@@ -31,7 +31,7 @@ function fenToHtml(fen, evalCssPath, moveScoringCssPath) {
         piece = color + type;
       }
 
-      squareDivs.push(`<div class="sq" data-piece="${piece}" data-sq="${sq}"></div>`);
+      squareDivs.push(`<div class="sq" data-p="${piece}" data-s="${sq}"></div>`);
     }
   }
 
@@ -68,20 +68,20 @@ function movesToHtml(moves, moveScoringCssPath) {
     const attrs = [
       `class="move"`,
       `data-idx="${i}"`,
-      `data-piece="${m.color}${m.piece.toUpperCase()}"`,
-      `data-from="${m.from}"`,
-      `data-to="${m.to}"`,
+      `data-p="${m.color}${m.piece.toUpperCase()}"`,
+      `data-f="${m.from}"`,
+      `data-d="${m.to}"`,
     ];
 
     if (m.captured) {
       attrs.push(`data-captured="${m.captured.toUpperCase()}"`);
     }
     if (m.flags.includes('k') || m.flags.includes('q')) {
-      attrs.push(`data-castle="true"`);
+      attrs.push(`data-c="true"`);
     }
     if (m.flags.includes('p')) {
       const promo = (m.promotion || 'q').toUpperCase();
-      attrs.push(`data-promotion="${promo}"`);
+      attrs.push(`data-pr="${promo}"`);
     }
     if (m.san && m.san.includes('+')) {
       attrs.push(`data-check="true"`);
@@ -158,14 +158,14 @@ function generateCandidateMovesHtml() {
           if ((isWhitePromo || isBlackPromo) && isPawnLike && isOneForward) {
             // Promotion candidates: one per promotion piece (for pawns)
             for (const promo of PROMO_PIECES) {
-              divs.push(`<div class="move" data-from="${from}" data-to="${to}" data-promotion="${promo}"></div>`);
+              divs.push(`<div class="move" data-f="${from}" data-d="${to}" data-pr="${promo}"></div>`);
             }
             // Also generate a normal move candidate (for non-pawn pieces
             // like king/knight that can also move between these squares)
-            divs.push(`<div class="move" data-from="${from}" data-to="${to}"></div>`);
+            divs.push(`<div class="move" data-f="${from}" data-d="${to}"></div>`);
           } else {
             // Normal move candidate
-            divs.push(`<div class="move" data-from="${from}" data-to="${to}"></div>`);
+            divs.push(`<div class="move" data-f="${from}" data-d="${to}"></div>`);
           }
         }
       }
@@ -181,20 +181,20 @@ function generateCandidateMovesHtml() {
       // White EP: from rank 5 to rank 6
       const wFrom = FILES[ff] + '5';
       const wTo = FILES[tf] + '6';
-      divs.push(`<div class="move" data-from="${wFrom}" data-to="${wTo}" data-ep="true"></div>`);
+      divs.push(`<div class="move" data-f="${wFrom}" data-d="${wTo}" data-e="true"></div>`);
 
       // Black EP: from rank 4 to rank 3
       const bFrom = FILES[ff] + '4';
       const bTo = FILES[tf] + '3';
-      divs.push(`<div class="move" data-from="${bFrom}" data-to="${bTo}" data-ep="true"></div>`);
+      divs.push(`<div class="move" data-f="${bFrom}" data-d="${bTo}" data-e="true"></div>`);
     }
   }
 
   // Castling candidates
-  divs.push(`<div class="move" data-from="e1" data-to="g1" data-castle="wk"></div>`);
-  divs.push(`<div class="move" data-from="e1" data-to="c1" data-castle="wq"></div>`);
-  divs.push(`<div class="move" data-from="e8" data-to="g8" data-castle="bk"></div>`);
-  divs.push(`<div class="move" data-from="e8" data-to="c8" data-castle="bq"></div>`);
+  divs.push(`<div class="move" data-f="e1" data-d="g1" data-c="wk"></div>`);
+  divs.push(`<div class="move" data-f="e1" data-d="c1" data-c="wq"></div>`);
+  divs.push(`<div class="move" data-f="e8" data-d="g8" data-c="bk"></div>`);
+  divs.push(`<div class="move" data-f="e8" data-d="c8" data-c="bq"></div>`);
 
   return divs.join('\n');
 }
@@ -211,7 +211,7 @@ function gameHtml(gameState, cssContent) {
     for (let r = 1; r <= 8; r++) {
       const sq = FILES[f] + r;
       const piece = gameState.board[sq] || 'empty';
-      squareDivs.push(`<div class="sq" data-piece="${piece}" data-sq="${sq}"></div>`);
+      squareDivs.push(`<div class="sq" data-p="${piece}" data-s="${sq}"></div>`);
     }
   }
 
@@ -224,7 +224,7 @@ function gameHtml(gameState, cssContent) {
 <style>${cssContent}</style>
 </head>
 <body>
-<div id="game" data-turn="${gameState.turn}" data-castle-wk="${gameState.castleWK ? 1 : 0}" data-castle-wq="${gameState.castleWQ ? 1 : 0}" data-castle-bk="${gameState.castleBK ? 1 : 0}" data-castle-bq="${gameState.castleBQ ? 1 : 0}" data-ep="${ep}">
+<div id="game" data-t="${gameState.turn}" data-cwk="${gameState.castleWK ? 1 : 0}" data-cwq="${gameState.castleWQ ? 1 : 0}" data-cbk="${gameState.castleBK ? 1 : 0}" data-cbq="${gameState.castleBQ ? 1 : 0}" data-e="${ep}">
 <div id="board">
 ${squareDivs.join('\n')}
 </div>

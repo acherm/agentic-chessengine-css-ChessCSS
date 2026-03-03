@@ -1,0 +1,96 @@
+@use "sass:list";
+@use "constants" as *;
+@use "functions" as *;
+@use "mixins" as *;
+
+/* === Pin Detection: pinned pieces can only move along pin line === */
+@each $def-color in $colors {
+  $atk-color: opp-color($def-color);
+  $king: $def-color + "K";
+  $turn-sel: '#game[data-t="' + $def-color + '"]';
+
+  @for $kf from 0 through 7 {
+    @for $kr from 0 through 7 {
+      $king-sq: sq-name($kf, $kr);
+
+      // Rook/Queen pins
+      @each $dir in $rook-dirs {
+        $df: list.nth($dir, 1);
+        $dr: list.nth($dir, 2);
+        $ray: build-ray($kf, $kr, $df, $dr);
+        $rlen: list.length($ray);
+
+        @if $rlen >= 2 {
+          @for $pi from 1 through $rlen - 1 {
+            $pinned-sq: ray-sq(list.nth($ray, $pi));
+
+            @for $ai from $pi + 1 through $rlen {
+              $attacker-sq: ray-sq(list.nth($ray, $ai));
+
+              $sel: $turn-sel;
+              $sel: $sel + has-piece($king-sq, $king);
+              $sel: $sel + has-pinned($pinned-sq, $def-color, $king);
+
+              // Squares between king and pinned must be empty
+              $sel: $sel + ray-empty-chain($ray, 1, $pi - 1);
+
+              // Squares between pinned and attacker must be empty
+              $sel: $sel + ray-empty-chain($ray, $pi + 1, $ai - 1);
+
+              // Attacker
+              $sel: $sel + has-attacker($attacker-sq, $atk-color + "R", $atk-color + "Q");
+
+              // Legal destinations along pin line (king+1 to attacker, excluding pinned)
+              $legal-dests: ();
+              @for $li from 1 through $rlen {
+                @if $li != $pi and $li <= $ai {
+                  $legal-dests: list.append($legal-dests, ray-sq(list.nth($ray, $li)));
+                }
+              }
+
+              $sel: $sel + ' .move[data-f="' + $pinned-sq + '"]' + not-to-chain($legal-dests);
+              @include emit-rule($sel);
+            }
+          }
+        }
+      }
+
+      // Bishop/Queen pins
+      @each $dir in $bishop-dirs {
+        $df: list.nth($dir, 1);
+        $dr: list.nth($dir, 2);
+        $ray: build-ray($kf, $kr, $df, $dr);
+        $rlen: list.length($ray);
+
+        @if $rlen >= 2 {
+          @for $pi from 1 through $rlen - 1 {
+            $pinned-sq: ray-sq(list.nth($ray, $pi));
+
+            @for $ai from $pi + 1 through $rlen {
+              $attacker-sq: ray-sq(list.nth($ray, $ai));
+
+              $sel: $turn-sel;
+              $sel: $sel + has-piece($king-sq, $king);
+              $sel: $sel + has-pinned($pinned-sq, $def-color, $king);
+
+              $sel: $sel + ray-empty-chain($ray, 1, $pi - 1);
+              $sel: $sel + ray-empty-chain($ray, $pi + 1, $ai - 1);
+
+              $sel: $sel + has-attacker($attacker-sq, $atk-color + "B", $atk-color + "Q");
+
+              $legal-dests: ();
+              @for $li from 1 through $rlen {
+                @if $li != $pi and $li <= $ai {
+                  $legal-dests: list.append($legal-dests, ray-sq(list.nth($ray, $li)));
+                }
+              }
+
+              $sel: $sel + ' .move[data-f="' + $pinned-sq + '"]' + not-to-chain($legal-dests);
+              @include emit-rule($sel);
+            }
+          }
+        }
+      }
+    }
+  }
+}

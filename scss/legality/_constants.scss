@@ -1,0 +1,15 @@
+// Chess constants for legality rule generation
+$files: "a", "b", "c", "d", "e", "f", "g", "h";
+$colors: "w", "b";
+$rook-dirs: (0 1), (0 -1), (1 0), (-1 0);
+$bishop-dirs: (1 1), (1 -1), (-1 1), (-1 -1);
+$all-dirs: (0 1), (0 -1), (1 0), (-1 0), (1 1), (1 -1), (-1 1), (-1 -1);
+$knight-offsets: (-2 -1), (-2 1), (-1 -2), (-1 2), (1 -2), (1 2), (2 -1), (2 1);
+$king-offsets: (-1 -1), (-1 0), (-1 1), (0 -1), (0 1), (1 -1), (1 0), (1 1);
+
+$castling-defs: (
+  ("color": "w", "castle": "wk", "king-sq": "e1", "mid-sq": "f1", "dest-sq": "g1"),
+  ("color": "w", "castle": "wq", "king-sq": "e1", "mid-sq": "d1", "dest-sq": "c1"),
+  ("color": "b", "castle": "bk", "king-sq": "e8", "mid-sq": "f8", "dest-sq": "g8"),
+  ("color": "b", "castle": "bq", "king-sq": "e8", "mid-sq": "d8", "dest-sq": "c8"),
+);

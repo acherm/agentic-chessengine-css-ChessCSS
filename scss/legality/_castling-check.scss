@@ -1,0 +1,98 @@
+@use "sass:list";
+@use "sass:map";
+@use "constants" as *;
+@use "functions" as *;
+@use "mixins" as *;
+
+/* === Castling Check: cannot castle out of, through, or into check === */
+@each $def in $castling-defs {
+  $color: map.get($def, "color");
+  $castle: map.get($def, "castle");
+  $king-sq-name: map.get($def, "king-sq");
+  $mid-sq-name: map.get($def, "mid-sq");
+  $atk-color: opp-color($color);
+  $turn-sel: '#game[data-t="' + $color + '"]';
+
+  @each $target-sq in $king-sq-name, $mid-sq-name {
+    $tf: file-of($target-sq);
+    $tr: rank-of($target-sq);
+
+    // Knight attacks
+    @each $off in $knight-offsets {
+      $ndf: list.nth($off, 1);
+      $ndr: list.nth($off, 2);
+      $af: $tf + $ndf;
+      $ar: $tr + $ndr;
+      @if is-valid($af, $ar) {
+        $atk-sq: sq-name($af, $ar);
+        @include emit-rule($turn-sel + has-piece($atk-sq, $atk-color + "N") + ' .move[data-c="' + $castle + '"]');
+      }
+    }
+
+    // Pawn attacks
+    $pawn-dir: 1;
+    @if $color == "b" { $pawn-dir: -1; }
+    @each $pdf in -1, 1 {
+      $af: $tf + $pdf;
+      $ar: $tr + $pawn-dir;
+      @if is-valid($af, $ar) {
+        $atk-sq: sq-name($af, $ar);
+        @include emit-rule($turn-sel + has-piece($atk-sq, $atk-color + "P") + ' .move[data-c="' + $castle + '"]');
+      }
+    }
+
+    // Enemy king attacks
+    @each $off in $king-offsets {
+      $edf: list.nth($off, 1);
+      $edr: list.nth($off, 2);
+      $af: $tf + $edf;
+      $ar: $tr + $edr;
+      @if is-valid($af, $ar) {
+        $atk-sq: sq-name($af, $ar);
+        @include emit-rule($turn-sel + has-piece($atk-sq, $atk-color + "K") + ' .move[data-c="' + $castle + '"]');
+      }
+    }
+
+    // Rook/Queen sliding attacks
+    @each $dir in $rook-dirs {
+      $ddf: list.nth($dir, 1);
+      $ddr: list.nth($dir, 2);
+      $between: ();
+      $af: $tf + $ddf;
+      $ar: $tr + $ddr;
+
+      @while is-valid($af, $ar) {
+        $atk-sq: sq-name($af, $ar);
+        $sel: $turn-sel + has-attacker($atk-sq, $atk-color + "R", $atk-color + "Q");
+        $sel: $sel + empty-chain($between);
+        $sel: $sel + ' .move[data-c="' + $castle + '"]';
+        @include emit-rule($sel);
+
+        $between: list.append($between, $atk-sq);
+        $af: $af + $ddf;
+        $ar: $ar + $ddr;
+      }
+    }
+
+    // Bishop/Queen sliding attacks
+    @each $dir in $bishop-dirs {
+      $ddf: list.nth($dir, 1);
+      $ddr: list.nth($dir, 2);
+      $between: ();
+      $af: $tf + $ddf;
+      $ar: $tr + $ddr;
+
+      @while is-valid($af, $ar) {
+        $atk-sq: sq-name($af, $ar);
+        $sel: $turn-sel + has-attacker($atk-sq, $atk-color + "B", $atk-color + "Q");
+        $sel: $sel + empty-chain($between);
+        $sel: $sel + ' .move[data-c="' + $castle + '"]';
+        @include emit-rule($sel);
+
+        $between: list.append($between, $atk-sq);
+        $af: $af + $ddf;
+        $ar: $ar + $ddr;
+      }
+    }
+  }
+}

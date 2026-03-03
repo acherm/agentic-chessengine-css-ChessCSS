@@ -1,0 +1,42 @@
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.03"]
+[Round "1"]
+[White "CSSEngine-d1"]
+[Black "Stockfish-skill0"]
+[Result "0-1"]
+
+1. Nc3 e6 2. Nf3 Nf6 3. d4 c6 4. Be3 Bb4 5. Ne5 O-O 6. d5 Nxd5 7. Bd4 c5 8. e4 cxd4 9. exd5 Qf6 10. dxe6 Qxe5+ 11. Be2 d5 12. exf7+ Rxf7 13. O-O Nd7 14. Nxd5 Ba5 15. Ne7+ Rxe7 16. Bc4+ Kh8 17. Bd5 Qxd5 18. c4 Qg8 19. Qxd4 Bb4 20. Qd3 a5 21. Qf5 Nf6 22. Qf4 Rd7 23. Qe5 a4 24. Qf5 Rd8 25. Qf4 Bg4 26. Qe5 b6 27. Qe3 Ba5 28. f4 Re8 29. Qd4 Qf8 30. Qd3 b5 31. cxb5 Rad8 32. f5 Qg8 33. Rf4 Bb6+ 34. Kf1 Qf8 35. Rxg4 Qf7 36. Qc3 Qd5 37. Rf4 Qd1+ 38. Rxd1 Rxd1+ 39. Qe1 Rdxe1# 0-1
+
+
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.03"]
+[Round "2"]
+[White "Stockfish-skill0"]
+[Black "CSSEngine-d1"]
+[Result "1-0"]
+
+1. e4 Nf6 2. e5 Nc6 3. exf6 exf6 4. d4 Bb4+ 5. Nc3 Bxc3+ 6. bxc3 O-O 7. h4 Re8+ 8. Be3 d5 9. Bd3 Be6 10. h5 f5 11. Nh3 f4 12. Nxf4 f5 13. Ne2 f4 14. Bc1 Bf5 15. a4 Bxd3 16. Qxd3 Re6 17. Kd1 Rd6 18. Bd2 Rf6 19. Nxf4 Rxf4 20. Bxf4 g5 21. Be5 Nxe5 22. dxe5 c5 23. Re1 c4 24. Qd2 g4 25. a5 b5 26. axb6 Kf7 27. e6+ Kf6 28. Qf4+ Ke7 29. Qf7+ Kd6 30. Kc1 Qg5+ 31. Re3 d4 32. Qc7+ Kd5 33. Ra5# 1-0
+
+
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.03"]
+[Round "3"]
+[White "CSSEngine-d1"]
+[Black "Stockfish-skill0"]
+[Result "1/2-1/2"]
+
+1. Nc3 d5 2. Nf3 Bf5 3. d4 h6 4. Be3 e6 5. Ne5 c6 6. Nd3 Nf6 7. f4 Nbd7 8. Ne5 Be7 9. Nxd7 Nxd7 10. Bd2 c5 11. dxc5 d4 12. e4 dxc3 13. exf5 cxb2 14. fxe6 Nxc5 15. exf7+ Kf8 16. Bc4 bxa1=B 17. O-O Bd4+ 18. Be3 Bxe3+ 19. Kh1 Bd4 20. Bd5 Bdf6 21. f5 Qd6 22. c4 Qd8 23. Rf4 Qd6 24. Rf3 a5 25. Re3 g5 26. g4 Nd7 27. Re4 Ne5 28. Rxe5 Qxe5 29. Be4 Qxe4+ 30. Kg1 Qd4+ 31. Qxd4 Rd8 32. Qe4 Bd4+ 33. Kg2 a4 34. Qe6 h5 35. gxh5 g4 36. Qe4 Rh6 37. Qd3 Bef6 38. Qa3+ Kxf7 39. c5 Kf8 40. Qd3 Rxh5 41. Qe4 Bde5 42. Qe3 Rd2+ 43. Qxd2 Rxh2+ 44. Kf1 Rxd2 45. c6 Rf2+ 46. Kxf2 bxc6 47. Ke3 Ba1 48. Ke4 Bh4 49. Kd3 Bhf6 50. Ke3 g3 51. Ke4 Bh4 52. Kd3 g2 53. Ke3 Bhf6 54. Ke4 Kg8 55. Kd3 g1=N 56. Ke3 c5 57. Ke4 Bab2 58. Kd5 Ba3 59. Ke6 Nf3 60. Kd6 Bh8 61. Kd5 Ne5 62. Ke4 Bf6 63. Ke3 c4 64. Kd4 Bb2+ 65. Ke4 Nc6 66. Kd5 Na5 67. Ke6 Bg7 68. Kd6 Bbc3 69. Kd5 Kf8 70. Ke4 Ke8 71. Ke3 Kd8 72. Kf4 Bb4 73. Ke4 Bh8 74. Kd5 a3 75. Ke6 Bg7 76. f6 Bh6 77. Ke5 Bg5 78. Kd4 Bh6 79. Ke4 Nb7 80. Ke5 c3 81. Kd4 Na5 82. Ke4 c2 83. Ke5 Nc4+ 84. Kd4 Nd6 85. Kd5 c1=B 86. Ke5 Nf7+ 87. Kd4 Bhf8 88. Ke4 Bfd6 89. Kd5 Bdc5 90. Ke6 Nh6 91. Ke5 Nf7+ 92. Ke4 Bh6 93. Kd5 Bc1 94. Ke6 Ne5 95. Kxe5 Bg5 96. Ke4 Kd7 97. Kd5 Bh4 98. Ke5 Kc8 99. Ke4 Bg5 100. Kd5 Bh6 1/2-1/2
+
+
+[Event "CSS Chess Tournament"]
+[Site "Local"]
+[Date "2026.03.03"]
+[Round "4"]
+[White "Stockfish-skill0"]
+[Black "CSSEngine-d1"]
+[Result "1-0"]
+
+1. e4 Nf6 2. e5 Nc6 3. f4 d5 4. Bb5 Be6 5. exf6 exf6 6. d4 Bb4+ 7. Nc3 Bxc3+ 8. bxc3 O-O 9. Nf3 f5 10. Rb1 f6 11. Be2 Qd6 12. O-O g5 13. Bd3 gxf4 14. Rxb7 Qe7 15. Rb5 Qd7 16. a4 Qd6 17. h3 Qe7 18. Qe2 Qd7 19. Qe1 Qd6 20. Ba3 Ne7 21. Bc5 Qc6 22. a5 Bd7 23. Rb3 Kf7 24. Qxe7+ Kg6 25. Qe2 Be6 26. Bxf8 Rxf8 27. Rbb1 Qd6 28. Qe1 c5 29. Nh4+ Kg5 30. Kh1 cxd4 31. Nf3+ Kg6 32. cxd4 Qc6 33. Rd1 Bd7 34. Qf2 Qe6 35. Rde1 Qd6 36. c4 dxc4 37. Bb1 Qd5 38. Qd2 Be6 39. Nh4+ Kg5 40. Rxe6 Qxe6 41. Nf3+ Kg6 42. Rd1 Qd5 43. Qc1 Qd6 44. Qxc4 Qe7 45. Qc1 Qe6 46. Nh4+ Kg5 47. Bxf5 Qd5 48. Re1 Qxd4 49. Rd1 Qe5 50. Re1 Qd5 51. Kh2 Qd4 52. Nf3+ Kxf5 53. Qb1+ Qe4 54. Qxe4# 1-0

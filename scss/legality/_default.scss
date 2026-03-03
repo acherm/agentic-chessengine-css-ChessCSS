@@ -1,0 +1,7 @@
+/* CSS Chess Engine — Legality Detection Rules
+ * Auto-generated from SCSS (scss/legality.scss)
+ * Sets --illegal: 1 on pseudo-legal moves that leave king in check.
+ */
+
+/* Default: no move is illegal */
+.move { --illegal: 0; }

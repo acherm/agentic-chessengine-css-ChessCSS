@@ -53,7 +53,7 @@ class CssEvaluator {
   /**
    * Initialize the single page with all CSS loaded: move-generation,
    * check-detection, evaluation, legality, and move scoring.
-   * All candidate move elements are pre-allocated. We mutate data-piece
+   * All candidate move elements are pre-allocated. We mutate data-p
    * attributes to update the position instead of rebuilding HTML.
    */
   async initMoveGenPage() {
@@ -104,33 +104,33 @@ class CssEvaluator {
 
     await this.moveGenPage.evaluate((state) => {
       const game = document.getElementById('game');
-      game.setAttribute('data-turn', state.turn);
-      game.setAttribute('data-castle-wk', state.castleWK ? '1' : '0');
-      game.setAttribute('data-castle-wq', state.castleWQ ? '1' : '0');
-      game.setAttribute('data-castle-bk', state.castleBK ? '1' : '0');
-      game.setAttribute('data-castle-bq', state.castleBQ ? '1' : '0');
-      game.setAttribute('data-ep', state.epSquare || 'none');
+      game.setAttribute('data-t', state.turn);
+      game.setAttribute('data-cwk', state.castleWK ? '1' : '0');
+      game.setAttribute('data-cwq', state.castleWQ ? '1' : '0');
+      game.setAttribute('data-cbk', state.castleBK ? '1' : '0');
+      game.setAttribute('data-cbq', state.castleBQ ? '1' : '0');
+      game.setAttribute('data-e', state.epSquare || 'none');
 
       // Set last-move attributes for reversal penalty
       if (state.lastMoveW) {
-        game.setAttribute('data-last-from-w', state.lastMoveW.from);
-        game.setAttribute('data-last-to-w', state.lastMoveW.to);
+        game.setAttribute('data-lfw', state.lastMoveW.from);
+        game.setAttribute('data-ltw', state.lastMoveW.to);
       } else {
-        game.removeAttribute('data-last-from-w');
-        game.removeAttribute('data-last-to-w');
+        game.removeAttribute('data-lfw');
+        game.removeAttribute('data-ltw');
       }
       if (state.lastMoveB) {
-        game.setAttribute('data-last-from-b', state.lastMoveB.from);
-        game.setAttribute('data-last-to-b', state.lastMoveB.to);
+        game.setAttribute('data-lfb', state.lastMoveB.from);
+        game.setAttribute('data-ltb', state.lastMoveB.to);
       } else {
-        game.removeAttribute('data-last-from-b');
-        game.removeAttribute('data-last-to-b');
+        game.removeAttribute('data-lfb');
+        game.removeAttribute('data-ltb');
       }
 
       const squares = document.querySelectorAll('.sq');
       for (const sqEl of squares) {
-        const sq = sqEl.getAttribute('data-sq');
-        sqEl.setAttribute('data-piece', state.board[sq] || 'empty');
+        const sq = sqEl.getAttribute('data-s');
+        sqEl.setAttribute('data-p', state.board[sq] || 'empty');
       }
     }, {
       turn: gameState.turn,
@@ -161,9 +161,9 @@ class CssEvaluator {
       const el = document.elementFromPoint(0, 0);
       if (!el || !el.classList.contains('move')) return null;
 
-      const from = el.getAttribute('data-from');
-      const to = el.getAttribute('data-to');
-      const promotion = el.getAttribute('data-promotion') || '';
+      const from = el.getAttribute('data-f');
+      const to = el.getAttribute('data-d');
+      const promotion = el.getAttribute('data-pr') || '';
       const score = parseInt(getComputedStyle(el).order, 10) || 0;
 
       return { from, to, promotion, score };
@@ -196,15 +196,15 @@ class CssEvaluator {
         if (style.getPropertyValue('--pseudo-legal').trim() !== '1') continue;
         if (style.getPropertyValue('--illegal').trim() === '1') continue;
 
-        const from = el.getAttribute('data-from');
-        const to = el.getAttribute('data-to');
-        const fromEl = board.querySelector(`.sq[data-sq="${from}"]`);
-        const toEl = board.querySelector(`.sq[data-sq="${to}"]`);
+        const from = el.getAttribute('data-f');
+        const to = el.getAttribute('data-d');
+        const fromEl = board.querySelector(`.sq[data-s="${from}"]`);
+        const toEl = board.querySelector(`.sq[data-s="${to}"]`);
 
         const move = { from, to };
-        const promo = el.getAttribute('data-promotion');
-        const castle = el.getAttribute('data-castle');
-        const ep = el.getAttribute('data-ep');
+        const promo = el.getAttribute('data-pr');
+        const castle = el.getAttribute('data-c');
+        const ep = el.getAttribute('data-e');
         if (promo) move.promotion = promo;
         if (castle) move.castle = castle;
         if (ep === 'true') move.ep = true;
@@ -213,15 +213,15 @@ class CssEvaluator {
         move.score = parseInt(style.order, 10) || 0;
 
         // Enrich with piece info for GameState.applyMove
-        move.piece = fromEl.getAttribute('data-piece');
+        move.piece = fromEl.getAttribute('data-p');
         move.pieceType = move.piece[1].toLowerCase();
-        const toPiece = toEl.getAttribute('data-piece');
+        const toPiece = toEl.getAttribute('data-p');
         if (toPiece !== 'empty') {
           move.captured = toPiece;
           move.capturedType = toPiece[1].toLowerCase();
         }
         if (move.ep) {
-          const turn = document.getElementById('game').getAttribute('data-turn');
+          const turn = document.getElementById('game').getAttribute('data-t');
           move.captured = (turn === 'w' ? 'bP' : 'wP');
           move.capturedType = 'p';
         }

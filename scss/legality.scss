@@ -1,0 +1,8 @@
+@use "legality/default";
+@use "legality/pin-detection";
+@use "legality/king-safety-non-sliding";
+@use "legality/king-safety-sliding";
+@use "legality/king-safety-vacancy";
+@use "legality/ep-discovered-check";
+@use "legality/castling-check";
+@use "legality/check-evasion";

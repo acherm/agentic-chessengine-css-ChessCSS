@@ -209,15 +209,15 @@ function generate() {
 
   // Promotion bonuses
   lines.push('/* ── Promotion bonuses ── */');
-  lines.push('.move[data-promotion="q"] { --promo-bonus: 9000; }');
-  lines.push('.move[data-promotion="r"] { --promo-bonus: 5000; }');
-  lines.push('.move[data-promotion="b"] { --promo-bonus: 3300; }');
-  lines.push('.move[data-promotion="n"] { --promo-bonus: 3200; }');
+  lines.push('.move[data-pr="q"] { --promo-bonus: 9000; }');
+  lines.push('.move[data-pr="r"] { --promo-bonus: 5000; }');
+  lines.push('.move[data-pr="b"] { --promo-bonus: 3300; }');
+  lines.push('.move[data-pr="n"] { --promo-bonus: 3200; }');
   lines.push('');
 
   // Castling bonus
   lines.push('/* ── Castling bonus ── */');
-  lines.push('.move[data-castle] { --castle-bonus: 60; }');
+  lines.push('.move[data-c] { --castle-bonus: 60; }');
   lines.push('');
 
   // Destination square bonuses
@@ -227,7 +227,7 @@ function generate() {
       const bonus = DEST_BONUS[ri][fi];
       if (bonus > 0) {
         const sq = FILES[fi] + (ri + 1);
-        lines.push(`.move[data-to="${sq}"] { --dest-bonus: ${bonus}; }`);
+        lines.push(`.move[data-d="${sq}"] { --dest-bonus: ${bonus}; }`);
       }
     }
   }
@@ -237,30 +237,30 @@ function generate() {
   lines.push('/* ── Development bonuses: encourage piece activity ── */');
   lines.push('');
   lines.push('/* Knights off starting squares */');
-  lines.push('#game:has(.sq[data-sq="b1"][data-piece="wN"]) .move[data-from="b1"] { --develop-bonus: 35; }');
-  lines.push('#game:has(.sq[data-sq="g1"][data-piece="wN"]) .move[data-from="g1"] { --develop-bonus: 35; }');
-  lines.push('#game:has(.sq[data-sq="b8"][data-piece="bN"]) .move[data-from="b8"] { --develop-bonus: 35; }');
-  lines.push('#game:has(.sq[data-sq="g8"][data-piece="bN"]) .move[data-from="g8"] { --develop-bonus: 35; }');
+  lines.push('#game:has(.sq[data-s="b1"][data-p="wN"]) .move[data-f="b1"] { --develop-bonus: 35; }');
+  lines.push('#game:has(.sq[data-s="g1"][data-p="wN"]) .move[data-f="g1"] { --develop-bonus: 35; }');
+  lines.push('#game:has(.sq[data-s="b8"][data-p="bN"]) .move[data-f="b8"] { --develop-bonus: 35; }');
+  lines.push('#game:has(.sq[data-s="g8"][data-p="bN"]) .move[data-f="g8"] { --develop-bonus: 35; }');
   lines.push('');
   lines.push('/* Bishops off starting squares */');
-  lines.push('#game:has(.sq[data-sq="c1"][data-piece="wB"]) .move[data-from="c1"] { --develop-bonus: 35; }');
-  lines.push('#game:has(.sq[data-sq="f1"][data-piece="wB"]) .move[data-from="f1"] { --develop-bonus: 35; }');
-  lines.push('#game:has(.sq[data-sq="c8"][data-piece="bB"]) .move[data-from="c8"] { --develop-bonus: 35; }');
-  lines.push('#game:has(.sq[data-sq="f8"][data-piece="bB"]) .move[data-from="f8"] { --develop-bonus: 35; }');
+  lines.push('#game:has(.sq[data-s="c1"][data-p="wB"]) .move[data-f="c1"] { --develop-bonus: 35; }');
+  lines.push('#game:has(.sq[data-s="f1"][data-p="wB"]) .move[data-f="f1"] { --develop-bonus: 35; }');
+  lines.push('#game:has(.sq[data-s="c8"][data-p="bB"]) .move[data-f="c8"] { --develop-bonus: 35; }');
+  lines.push('#game:has(.sq[data-s="f8"][data-p="bB"]) .move[data-f="f8"] { --develop-bonus: 35; }');
   lines.push('');
   lines.push('/* Central pawns: small bonus (pieces should develop first) */');
-  lines.push('#game:has(.sq[data-sq="d2"][data-piece="wP"]) .move[data-from="d2"] { --develop-bonus: 10; }');
-  lines.push('#game:has(.sq[data-sq="e2"][data-piece="wP"]) .move[data-from="e2"] { --develop-bonus: 10; }');
-  lines.push('#game:has(.sq[data-sq="d7"][data-piece="bP"]) .move[data-from="d7"] { --develop-bonus: 10; }');
-  lines.push('#game:has(.sq[data-sq="e7"][data-piece="bP"]) .move[data-from="e7"] { --develop-bonus: 10; }');
+  lines.push('#game:has(.sq[data-s="d2"][data-p="wP"]) .move[data-f="d2"] { --develop-bonus: 10; }');
+  lines.push('#game:has(.sq[data-s="e2"][data-p="wP"]) .move[data-f="e2"] { --develop-bonus: 10; }');
+  lines.push('#game:has(.sq[data-s="d7"][data-p="bP"]) .move[data-f="d7"] { --develop-bonus: 10; }');
+  lines.push('#game:has(.sq[data-s="e7"][data-p="bP"]) .move[data-f="e7"] { --develop-bonus: 10; }');
   lines.push('');
   lines.push('/* Discourage early king moves (except castling) */');
-  lines.push('#game:has(.sq[data-sq="e1"][data-piece="wK"]) .move[data-from="e1"]:not([data-castle]) { --develop-bonus: -15; }');
-  lines.push('#game:has(.sq[data-sq="e8"][data-piece="bK"]) .move[data-from="e8"]:not([data-castle]) { --develop-bonus: -15; }');
+  lines.push('#game:has(.sq[data-s="e1"][data-p="wK"]) .move[data-f="e1"]:not([data-c]) { --develop-bonus: -15; }');
+  lines.push('#game:has(.sq[data-s="e8"][data-p="bK"]) .move[data-f="e8"]:not([data-c]) { --develop-bonus: -15; }');
   lines.push('');
   lines.push('/* Discourage early queen moves from starting square */');
-  lines.push('#game:has(.sq[data-sq="d1"][data-piece="wQ"]) .move[data-from="d1"] { --develop-bonus: -8; }');
-  lines.push('#game:has(.sq[data-sq="d8"][data-piece="bQ"]) .move[data-from="d8"] { --develop-bonus: -8; }');
+  lines.push('#game:has(.sq[data-s="d1"][data-p="wQ"]) .move[data-f="d1"] { --develop-bonus: -8; }');
+  lines.push('#game:has(.sq[data-s="d8"][data-p="bQ"]) .move[data-f="d8"] { --develop-bonus: -8; }');
   lines.push('');
 
   // Capture value rules
@@ -270,7 +270,7 @@ function generate() {
       const sq = FILES[f] + r;
       for (const piece of PIECES) {
         lines.push(
-          `#game:has(.sq[data-sq="${sq}"]:is([data-piece="w${piece.type}"],[data-piece="b${piece.type}"])) .move[data-to="${sq}"] { --capture-value: ${piece.value}; }`
+          `#game:has(.sq[data-s="${sq}"]:is([data-p="w${piece.type}"],[data-p="b${piece.type}"])) .move[data-d="${sq}"] { --capture-value: ${piece.value}; }`
         );
       }
     }
@@ -284,7 +284,7 @@ function generate() {
       const sq = FILES[f] + r;
       for (const piece of PIECES) {
         lines.push(
-          `#game:has(.sq[data-sq="${sq}"]:is([data-piece="w${piece.type}"],[data-piece="b${piece.type}"])) .move[data-from="${sq}"] { --attacker-value: ${piece.value}; }`
+          `#game:has(.sq[data-s="${sq}"]:is([data-p="w${piece.type}"],[data-p="b${piece.type}"])) .move[data-f="${sq}"] { --attacker-value: ${piece.value}; }`
         );
       }
     }
@@ -418,13 +418,13 @@ function generateKingThreats(lines) {
       }
       if (adjSquares.length === 0) continue;
 
-      const toSels = adjSquares.map(sq => `[data-to="${sq}"]`).join(',');
+      const toSels = adjSquares.map(sq => `[data-d="${sq}"]`).join(',');
 
       // White's turn: enemy king is black; Black's turn: enemy king is white
       lines.push(
         `:is(` +
-        `#game[data-turn="w"]:has(.sq[data-sq="${kingSq}"][data-piece="bK"]),` +
-        `#game[data-turn="b"]:has(.sq[data-sq="${kingSq}"][data-piece="wK"])` +
+        `#game[data-t="w"]:has(.sq[data-s="${kingSq}"][data-p="bK"]),` +
+        `#game[data-t="b"]:has(.sq[data-s="${kingSq}"][data-p="wK"])` +
         `) .move:is(${toSels}) { --king-threat: 1; }`
       );
     }
@@ -457,13 +457,13 @@ function generateKingDefense(lines) {
       }
       if (adjSquares.length === 0) continue;
 
-      const toSels = adjSquares.map(sq => `[data-to="${sq}"]`).join(',');
+      const toSels = adjSquares.map(sq => `[data-d="${sq}"]`).join(',');
 
       // White's turn: friendly king is white; Black's turn: friendly king is black
       lines.push(
         `:is(` +
-        `#game[data-turn="w"]:has(.sq[data-sq="${kingSq}"][data-piece="wK"]),` +
-        `#game[data-turn="b"]:has(.sq[data-sq="${kingSq}"][data-piece="bK"])` +
+        `#game[data-t="w"]:has(.sq[data-s="${kingSq}"][data-p="wK"]),` +
+        `#game[data-t="b"]:has(.sq[data-s="${kingSq}"][data-p="bK"])` +
         `) .move:is(${toSels}) { --king-defense: 1; }`
       );
     }
@@ -488,7 +488,7 @@ function generatePawnThreats(lines) {
         if (pawnFi >= 0 && pawnFi < 8 && pawnRi >= 1 && pawnRi <= 8) {
           const pawnSq = FILES[pawnFi] + pawnRi;
           lines.push(
-            `#game[data-turn="w"]:has(.sq[data-sq="${pawnSq}"][data-piece="bP"]) .move[data-to="${destSq}"] { --pawn-threat: 1; }`
+            `#game[data-t="w"]:has(.sq[data-s="${pawnSq}"][data-p="bP"]) .move[data-d="${destSq}"] { --pawn-threat: 1; }`
           );
         }
       }
@@ -501,7 +501,7 @@ function generatePawnThreats(lines) {
         if (pawnFi >= 0 && pawnFi < 8 && pawnRi >= 1 && pawnRi <= 8) {
           const pawnSq = FILES[pawnFi] + pawnRi;
           lines.push(
-            `#game[data-turn="b"]:has(.sq[data-sq="${pawnSq}"][data-piece="wP"]) .move[data-to="${destSq}"] { --pawn-threat: 1; }`
+            `#game[data-t="b"]:has(.sq[data-s="${pawnSq}"][data-p="wP"]) .move[data-d="${destSq}"] { --pawn-threat: 1; }`
           );
         }
       }
@@ -530,11 +530,11 @@ function generateKnightThreats(lines) {
           const knightSq = FILES[kfi] + kri;
           // White's turn: enemy knights are black
           lines.push(
-            `#game[data-turn="w"]:has(.sq[data-sq="${knightSq}"][data-piece="bN"]) .move[data-to="${destSq}"] { --knight-threat: 1; }`
+            `#game[data-t="w"]:has(.sq[data-s="${knightSq}"][data-p="bN"]) .move[data-d="${destSq}"] { --knight-threat: 1; }`
           );
           // Black's turn: enemy knights are white
           lines.push(
-            `#game[data-turn="b"]:has(.sq[data-sq="${knightSq}"][data-piece="wN"]) .move[data-to="${destSq}"] { --knight-threat: 1; }`
+            `#game[data-t="b"]:has(.sq[data-s="${knightSq}"][data-p="wN"]) .move[data-d="${destSq}"] { --knight-threat: 1; }`
           );
         }
       }
@@ -571,14 +571,14 @@ function generateSlidingThreatOrDefense(lines, { directions, varName, pieceTypes
               ? (color === 'w' ? 'b' : 'w')
               : color;
 
-            const pieceSels = pieceTypes.map(t => `[data-piece="${pieceColor}${t}"]`).join(',');
+            const pieceSels = pieceTypes.map(t => `[data-p="${pieceColor}${t}"]`).join(',');
 
-            let sel = `#game[data-turn="${color}"]`;
-            sel += `:has(.sq[data-sq="${sq}"]:is(${pieceSels}))`;
+            let sel = `#game[data-t="${color}"]`;
+            sel += `:has(.sq[data-s="${sq}"]:is(${pieceSels}))`;
             for (const bsq of between) {
-              sel += `:has(.sq[data-sq="${bsq}"][data-piece="empty"])`;
+              sel += `:has(.sq[data-s="${bsq}"][data-p="empty"])`;
             }
-            sel += ` .move[data-to="${destSq}"] { ${varName}: 1; }`;
+            sel += ` .move[data-d="${destSq}"] { ${varName}: 1; }`;
             lines.push(sel);
           }
 
@@ -610,11 +610,11 @@ function generateKnightDefense(lines) {
           const knightSq = FILES[kfi] + kri;
           // White's turn: friendly knights are white
           lines.push(
-            `#game[data-turn="w"]:has(.sq[data-sq="${knightSq}"][data-piece="wN"]) .move[data-to="${destSq}"] { --knight-defense: 1; }`
+            `#game[data-t="w"]:has(.sq[data-s="${knightSq}"][data-p="wN"]) .move[data-d="${destSq}"] { --knight-defense: 1; }`
           );
           // Black's turn: friendly knights are black
           lines.push(
-            `#game[data-turn="b"]:has(.sq[data-sq="${knightSq}"][data-piece="bN"]) .move[data-to="${destSq}"] { --knight-defense: 1; }`
+            `#game[data-t="b"]:has(.sq[data-s="${knightSq}"][data-p="bN"]) .move[data-d="${destSq}"] { --knight-defense: 1; }`
           );
         }
       }
@@ -640,7 +640,7 @@ function generatePawnDefense(lines) {
         if (pawnFi >= 0 && pawnFi < 8 && pawnRi >= 1 && pawnRi <= 8) {
           const pawnSq = FILES[pawnFi] + pawnRi;
           lines.push(
-            `#game[data-turn="w"]:has(.sq[data-sq="${pawnSq}"][data-piece="wP"]) .move[data-to="${destSq}"] { --pawn-defense: 1; }`
+            `#game[data-t="w"]:has(.sq[data-s="${pawnSq}"][data-p="wP"]) .move[data-d="${destSq}"] { --pawn-defense: 1; }`
           );
         }
       }
@@ -653,7 +653,7 @@ function generatePawnDefense(lines) {
         if (pawnFi >= 0 && pawnFi < 8 && pawnRi >= 1 && pawnRi <= 8) {
           const pawnSq = FILES[pawnFi] + pawnRi;
           lines.push(
-            `#game[data-turn="b"]:has(.sq[data-sq="${pawnSq}"][data-piece="bP"]) .move[data-to="${destSq}"] { --pawn-defense: 1; }`
+            `#game[data-t="b"]:has(.sq[data-s="${pawnSq}"][data-p="bP"]) .move[data-d="${destSq}"] { --pawn-defense: 1; }`
           );
         }
       }
@@ -710,29 +710,29 @@ function generateDiscoveredAttacks(lines) {
                 const targetSq = targetRay[ti];
                 const targetBetween = targetRay.slice(0, ti);
 
-                let sel = `#game[data-turn="${color}"]`;
+                let sel = `#game[data-t="${color}"]`;
 
                 // Enemy slider piece
                 if (isDiag) {
-                  sel += `:has(.sq[data-sq="${sliderSq}"]:is([data-piece="${enemy}B"],[data-piece="${enemy}Q"]))`;
+                  sel += `:has(.sq[data-s="${sliderSq}"]:is([data-p="${enemy}B"],[data-p="${enemy}Q"]))`;
                 } else {
-                  sel += `:has(.sq[data-sq="${sliderSq}"]:is([data-piece="${enemy}R"],[data-piece="${enemy}Q"]))`;
+                  sel += `:has(.sq[data-s="${sliderSq}"]:is([data-p="${enemy}R"],[data-p="${enemy}Q"]))`;
                 }
 
                 // Intermediates between from and slider must be empty
                 for (const bsq of sliderBetween) {
-                  sel += `:has(.sq[data-sq="${bsq}"][data-piece="empty"])`;
+                  sel += `:has(.sq[data-s="${bsq}"][data-p="empty"])`;
                 }
 
                 // Intermediates between from and target must be empty
                 for (const bsq of targetBetween) {
-                  sel += `:has(.sq[data-sq="${bsq}"][data-piece="empty"])`;
+                  sel += `:has(.sq[data-s="${bsq}"][data-p="empty"])`;
                 }
 
                 // Friendly target piece
-                sel += `:has(.sq[data-sq="${targetSq}"][data-piece="${color}${target.type}"])`;
+                sel += `:has(.sq[data-s="${targetSq}"][data-p="${color}${target.type}"])`;
 
-                sel += ` .move[data-from="${fromSq}"] { --disc-attack: ${target.value}; }`;
+                sel += ` .move[data-f="${fromSq}"] { --disc-attack: ${target.value}; }`;
                 lines.push(sel);
               }
             }
@@ -764,10 +764,10 @@ function generateKnightChecks(lines) {
         if (kfi >= 0 && kfi < 8 && kri >= 1 && kri <= 8) {
           const kingSq = FILES[kfi] + kri;
           lines.push(
-            `#game[data-turn="w"]:has(.sq[data-sq="${kingSq}"][data-piece="bK"]) .move[data-to="${toSq}"] { --knight-checks-king: 1; }`
+            `#game[data-t="w"]:has(.sq[data-s="${kingSq}"][data-p="bK"]) .move[data-d="${toSq}"] { --knight-checks-king: 1; }`
           );
           lines.push(
-            `#game[data-turn="b"]:has(.sq[data-sq="${kingSq}"][data-piece="wK"]) .move[data-to="${toSq}"] { --knight-checks-king: 1; }`
+            `#game[data-t="b"]:has(.sq[data-s="${kingSq}"][data-p="wK"]) .move[data-d="${toSq}"] { --knight-checks-king: 1; }`
           );
         }
       }
@@ -792,7 +792,7 @@ function generatePawnChecks(lines) {
         if (kfi >= 0 && kfi < 8 && kri >= 1 && kri <= 8) {
           const kingSq = FILES[kfi] + kri;
           lines.push(
-            `#game[data-turn="w"]:has(.sq[data-sq="${kingSq}"][data-piece="bK"]) .move[data-to="${toSq}"] { --pawn-checks-king: 1; }`
+            `#game[data-t="w"]:has(.sq[data-s="${kingSq}"][data-p="bK"]) .move[data-d="${toSq}"] { --pawn-checks-king: 1; }`
           );
         }
       }
@@ -804,7 +804,7 @@ function generatePawnChecks(lines) {
         if (kfi >= 0 && kfi < 8 && kri >= 1 && kri <= 8) {
           const kingSq = FILES[kfi] + kri;
           lines.push(
-            `#game[data-turn="b"]:has(.sq[data-sq="${kingSq}"][data-piece="wK"]) .move[data-to="${toSq}"] { --pawn-checks-king: 1; }`
+            `#game[data-t="b"]:has(.sq[data-s="${kingSq}"][data-p="wK"]) .move[data-d="${toSq}"] { --pawn-checks-king: 1; }`
           );
         }
       }
@@ -835,12 +835,12 @@ function generateSlidingChecks(lines, { directions, varName }) {
           for (const color of ['w', 'b']) {
             const enemyKing = color === 'w' ? 'bK' : 'wK';
 
-            let sel = `#game[data-turn="${color}"]`;
-            sel += `:has(.sq[data-sq="${sq}"][data-piece="${enemyKing}"])`;
+            let sel = `#game[data-t="${color}"]`;
+            sel += `:has(.sq[data-s="${sq}"][data-p="${enemyKing}"])`;
             for (const bsq of between) {
-              sel += `:has(.sq[data-sq="${bsq}"][data-piece="empty"])`;
+              sel += `:has(.sq[data-s="${bsq}"][data-p="empty"])`;
             }
-            sel += ` .move[data-to="${toSq}"] { ${varName}: 1; }`;
+            sel += ` .move[data-d="${toSq}"] { ${varName}: 1; }`;
             lines.push(sel);
           }
 
@@ -866,9 +866,9 @@ function generateReversalPenalty(lines) {
           if (fi1 === fi2 && ri1 === ri2) continue;
           const sqY = FILES[fi2] + ri2;
           lines.push(
-            `:is(#game[data-turn="w"][data-last-from-w="${sqX}"][data-last-to-w="${sqY}"],` +
-            `#game[data-turn="b"][data-last-from-b="${sqX}"][data-last-to-b="${sqY}"])` +
-            ` .move[data-from="${sqY}"][data-to="${sqX}"] { --reversal-penalty: 50; }`
+            `:is(#game[data-t="w"][data-lfw="${sqX}"][data-ltw="${sqY}"],` +
+            `#game[data-t="b"][data-lfb="${sqX}"][data-ltb="${sqY}"])` +
+            ` .move[data-f="${sqY}"][data-d="${sqX}"] { --reversal-penalty: 50; }`
           );
         }
       }

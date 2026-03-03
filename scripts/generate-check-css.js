@@ -59,7 +59,7 @@ function generateCheckCss() {
           const ar = kr + dr;
           if (!isValid(af, ar)) continue;
           const atkSq = sqName(af, ar);
-          const sel = `#board:has(.sq[data-sq="${kingSq}"][data-piece="${king}"]):has(.sq[data-sq="${atkSq}"][data-piece="${atkColor}N"]) { ${varName}: 1; }`;
+          const sel = `#board:has(.sq[data-s="${kingSq}"][data-p="${king}"]):has(.sq[data-s="${atkSq}"][data-p="${atkColor}N"]) { ${varName}: 1; }`;
           allRules.push(sel);
           totalRules++;
         }
@@ -72,7 +72,7 @@ function generateCheckCss() {
             const ar = kr + pawnDir; // opponent pawn is one rank "ahead" in its attack direction
             if (!isValid(af, ar)) continue;
             const atkSq = sqName(af, ar);
-            const sel = `#board:has(.sq[data-sq="${kingSq}"][data-piece="${king}"]):has(.sq[data-sq="${atkSq}"][data-piece="${atkColor}P"]) { ${varName}: 1; }`;
+            const sel = `#board:has(.sq[data-s="${kingSq}"][data-p="${king}"]):has(.sq[data-s="${atkSq}"][data-p="${atkColor}P"]) { ${varName}: 1; }`;
             allRules.push(sel);
             totalRules++;
           }
@@ -87,11 +87,11 @@ function generateCheckCss() {
             const atkSq = sqName(af, ar);
 
             // Build selector: king at kingSq, all between empty, attacker is rook or queen
-            let sel = `#board:has(.sq[data-sq="${kingSq}"][data-piece="${king}"])`;
+            let sel = `#board:has(.sq[data-s="${kingSq}"][data-p="${king}"])`;
             for (const bsq of between) {
-              sel += `:has(.sq[data-sq="${bsq}"][data-piece="empty"])`;
+              sel += `:has(.sq[data-s="${bsq}"][data-p="empty"])`;
             }
-            sel += `:has(.sq[data-sq="${atkSq}"]:is([data-piece="${atkColor}R"],[data-piece="${atkColor}Q"]))`;
+            sel += `:has(.sq[data-s="${atkSq}"]:is([data-p="${atkColor}R"],[data-p="${atkColor}Q"]))`;
             sel += ` { ${varName}: 1; }`;
             allRules.push(sel);
             totalRules++;
@@ -110,11 +110,11 @@ function generateCheckCss() {
           while (isValid(af, ar)) {
             const atkSq = sqName(af, ar);
 
-            let sel = `#board:has(.sq[data-sq="${kingSq}"][data-piece="${king}"])`;
+            let sel = `#board:has(.sq[data-s="${kingSq}"][data-p="${king}"])`;
             for (const bsq of between) {
-              sel += `:has(.sq[data-sq="${bsq}"][data-piece="empty"])`;
+              sel += `:has(.sq[data-s="${bsq}"][data-p="empty"])`;
             }
-            sel += `:has(.sq[data-sq="${atkSq}"]:is([data-piece="${atkColor}B"],[data-piece="${atkColor}Q"]))`;
+            sel += `:has(.sq[data-s="${atkSq}"]:is([data-p="${atkColor}B"],[data-p="${atkColor}Q"]))`;
             sel += ` { ${varName}: 1; }`;
             allRules.push(sel);
             totalRules++;

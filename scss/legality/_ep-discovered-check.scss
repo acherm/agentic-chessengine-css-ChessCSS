@@ -1,0 +1,73 @@
+@use "sass:list";
+@use "constants" as *;
+@use "functions" as *;
+@use "mixins" as *;
+
+/* === EP Discovered Check: en passant removing rank protection === */
+@each $def-color in $colors {
+  $atk-color: opp-color($def-color);
+  $king: $def-color + "K";
+  $turn-sel: '#game[data-t="' + $def-color + '"]';
+
+  $ep-rank: 4;
+  @if $def-color == "b" { $ep-rank: 3; }
+  $ep-dest-rank: 5;
+  @if $def-color == "b" { $ep-dest-rank: 2; }
+
+  @for $cap-file from 0 through 7 {
+    @each $capt-dir in -1, 1 {
+      $target-file: $cap-file + $capt-dir;
+
+      @if is-valid($target-file, $ep-rank) {
+        $from-sq: sq-name($cap-file, $ep-rank);
+        $to-sq: sq-name($target-file, $ep-dest-rank);
+
+        @for $king-file from 0 through 7 {
+          @if $king-file != $cap-file and $king-file != $target-file {
+            $king-sq: sq-name($king-file, $ep-rank);
+
+            @each $rank-dir in -1, 1 {
+              $af: $king-file + $rank-dir;
+              $vacated-count: 0;
+              $empty-between: ();
+              $empty-vacated-flags: ();
+
+              @while is-valid($af, $ep-rank) {
+                $sq: sq-name($af, $ep-rank);
+
+                @if $af == $cap-file or $af == $target-file {
+                  $vacated-count: $vacated-count + 1;
+                  $empty-between: list.append($empty-between, $sq);
+                  $empty-vacated-flags: list.append($empty-vacated-flags, true);
+                } @else if $vacated-count < 2 {
+                  $empty-between: list.append($empty-between, $sq);
+                  $empty-vacated-flags: list.append($empty-vacated-flags, false);
+                } @else {
+                  $atk-sq: $sq;
+
+                  $sel: $turn-sel;
+                  $sel: $sel + has-piece($king-sq, $king);
+                  $sel: $sel + has-attacker($atk-sq, $atk-color + "R", $atk-color + "Q");
+
+                  @for $ei from 1 through list.length($empty-between) {
+                    @if not list.nth($empty-vacated-flags, $ei) {
+                      $sel: $sel + has-empty(list.nth($empty-between, $ei));
+                    }
+                  }
+
+                  $sel: $sel + ' .move[data-f="' + $from-sq + '"][data-d="' + $to-sq + '"][data-e="true"]';
+                  @include emit-rule($sel);
+
+                  $empty-between: list.append($empty-between, $atk-sq);
+                  $empty-vacated-flags: list.append($empty-vacated-flags, false);
+                }
+
+                $af: $af + $rank-dir;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

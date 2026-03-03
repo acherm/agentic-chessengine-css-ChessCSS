@@ -6,7 +6,7 @@
 /* === King Safety: Sliding attacks (no vacancy) === */
 @each $def-color in $colors {
   $atk-color: opp-color($def-color);
-  $turn-sel: '#game[data-turn="' + $def-color + '"]';
+  $turn-sel: '#game[data-t="' + $def-color + '"]';
 
   @for $df from 0 through 7 {
     @for $dr from 0 through 7 {
@@ -31,7 +31,7 @@
               $src-sq: sq-name($sf, $sr);
               $sel: $turn-sel + has-piece($src-sq, $def-color + "K") + has-attacker($atk-sq, $atk-color + "R", $atk-color + "Q");
               $sel: $sel + empty-chain($between);
-              $sel: $sel + ' .move[data-from="' + $src-sq + '"][data-to="' + $dest-sq + '"]';
+              $sel: $sel + ' .move[data-f="' + $src-sq + '"][data-d="' + $dest-sq + '"]';
               $sels: list.append($sels, $sel, comma);
             }
           }
@@ -61,7 +61,7 @@
               $src-sq: sq-name($sf, $sr);
               $sel: $turn-sel + has-piece($src-sq, $def-color + "K") + has-attacker($atk-sq, $atk-color + "B", $atk-color + "Q");
               $sel: $sel + empty-chain($between);
-              $sel: $sel + ' .move[data-from="' + $src-sq + '"][data-to="' + $dest-sq + '"]';
+              $sel: $sel + ' .move[data-f="' + $src-sq + '"][data-d="' + $dest-sq + '"]';
               $sels: list.append($sels, $sel, comma);
             }
           }

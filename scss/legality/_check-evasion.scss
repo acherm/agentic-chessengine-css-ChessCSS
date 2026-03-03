@@ -7,7 +7,7 @@
 @each $def-color in $colors {
   $atk-color: opp-color($def-color);
   $king: $def-color + "K";
-  $turn-sel: '#game[data-turn="' + $def-color + '"]';
+  $turn-sel: '#game[data-t="' + $def-color + '"]';
 
   @for $kf from 0 through 7 {
     @for $kr from 0 through 7 {
@@ -21,7 +21,7 @@
         $ar: $kr + $ndr;
         @if is-valid($af, $ar) {
           $atk-sq: sq-name($af, $ar);
-          @include emit-rule($turn-sel + has-piece($king-sq, $king) + has-piece($atk-sq, $atk-color + "N") + ' .move:not([data-from="' + $king-sq + '"]):not([data-to="' + $atk-sq + '"])');
+          @include emit-rule($turn-sel + has-piece($king-sq, $king) + has-piece($atk-sq, $atk-color + "N") + ' .move:not([data-f="' + $king-sq + '"]):not([data-d="' + $atk-sq + '"])');
         }
       }
 
@@ -33,7 +33,7 @@
         $ar: $kr + $pawn-dir;
         @if is-valid($af, $ar) {
           $atk-sq: sq-name($af, $ar);
-          @include emit-rule($turn-sel + has-piece($king-sq, $king) + has-piece($atk-sq, $atk-color + "P") + ' .move:not([data-from="' + $king-sq + '"]):not([data-to="' + $atk-sq + '"])');
+          @include emit-rule($turn-sel + has-piece($king-sq, $king) + has-piece($atk-sq, $atk-color + "P") + ' .move:not([data-f="' + $king-sq + '"]):not([data-d="' + $atk-sq + '"])');
         }
       }
 
@@ -54,7 +54,7 @@
           $sel: $turn-sel + has-piece($king-sq, $king);
           $sel: $sel + empty-chain($between);
           $sel: $sel + has-attacker($atk-sq, $atk-color + "R", $atk-color + "Q");
-          $sel: $sel + ' .move:not([data-from="' + $king-sq + '"])' + $not-parts;
+          $sel: $sel + ' .move:not([data-f="' + $king-sq + '"])' + $not-parts;
           @include emit-rule($sel);
 
           $between: list.append($between, $atk-sq);
@@ -80,7 +80,7 @@
           $sel: $turn-sel + has-piece($king-sq, $king);
           $sel: $sel + empty-chain($between);
           $sel: $sel + has-attacker($atk-sq, $atk-color + "B", $atk-color + "Q");
-          $sel: $sel + ' .move:not([data-from="' + $king-sq + '"])' + $not-parts;
+          $sel: $sel + ' .move:not([data-f="' + $king-sq + '"])' + $not-parts;
           @include emit-rule($sel);
 
           $between: list.append($between, $atk-sq);

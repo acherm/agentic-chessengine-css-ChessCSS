@@ -103,14 +103,14 @@ function generateEvalCss() {
 
         // White piece: positive contribution
         const whiteVal = material + pst;
-        rules.push(`.sq[data-piece="w${piece}"][data-sq="${sq}"] { --piece-value: ${whiteVal}; }`);
+        rules.push(`.sq[data-p="w${piece}"][data-s="${sq}"] { --piece-value: ${whiteVal}; }`);
         ruleCount++;
 
         // Black piece: negative contribution, PST mirrored vertically
         const mirroredRankIdx = 7 - rankIdx;
         const blackPst = PST[piece][mirroredRankIdx][fileIdx];
         const blackVal = -(material + blackPst);
-        rules.push(`.sq[data-piece="b${piece}"][data-sq="${sq}"] { --piece-value: ${blackVal}; }`);
+        rules.push(`.sq[data-p="b${piece}"][data-s="${sq}"] { --piece-value: ${blackVal}; }`);
         ruleCount++;
       }
     }

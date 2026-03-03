@@ -1,0 +1,115 @@
+@use "sass:list";
+@use "sass:string";
+@use "sass:math";
+@use "constants" as *;
+
+// Square name from 0-indexed file, rank
+@function sq-name($f, $r) {
+  @return list.nth($files, $f + 1) + ($r + 1);
+}
+
+// Bounds check (0-indexed)
+@function is-valid($f, $r) {
+  @return $f >= 0 and $f < 8 and $r >= 0 and $r < 8;
+}
+
+// File index from square name (0-indexed)
+@function file-of($sq) {
+  $ch: string.slice($sq, 1, 1);
+  @return list.index($files, $ch) - 1;
+}
+
+// Rank index from square name (0-indexed)
+@function rank-of($sq) {
+  @return to-number(string.slice($sq, 2, 2)) - 1;
+}
+
+// Parse a single digit string to number
+@function to-number($str) {
+  $digits: "0" "1" "2" "3" "4" "5" "6" "7" "8" "9";
+  $idx: list.index($digits, $str);
+  @if $idx {
+    @return $idx - 1;
+  }
+  @return 0;
+}
+
+// :has(.sq[data-s="..."][data-p="..."])
+@function has-piece($sq, $piece) {
+  @return ':has(.sq[data-s="' + $sq + '"][data-p="' + $piece + '"])';
+}
+
+// :has(.sq[data-s="..."][data-p="empty"])
+@function has-empty($sq) {
+  @return ':has(.sq[data-s="' + $sq + '"][data-p="empty"])';
+}
+
+// :has(.sq[data-s="..."]:is([data-p="..."], [data-p="..."]))
+@function has-attacker($sq, $p1, $p2) {
+  @return ':has(.sq[data-s="' + $sq + '"]:is([data-p="' + $p1 + '"],[data-p="' + $p2 + '"]))';
+}
+
+// :has(.sq[data-s="..."][data-p^="<color>"]:not([data-p="<king>"]))
+@function has-pinned($sq, $color, $king) {
+  @return ':has(.sq[data-s="' + $sq + '"][data-p^="' + $color + '"]:not([data-p="' + $king + '"]))';
+}
+
+// Build a ray: walk from (sf, sr) in direction (df, dr), return list of (f r sq) triples
+@function build-ray($sf, $sr, $df, $dr) {
+  $ray: ();
+  $f: $sf + $df;
+  $r: $sr + $dr;
+  @while is-valid($f, $r) {
+    $sq: sq-name($f, $r);
+    $ray: list.append($ray, ($f $r $sq));
+    $f: $f + $df;
+    $r: $r + $dr;
+  }
+  @return $ray;
+}
+
+// Extract square name from ray triple
+@function ray-sq($elem) {
+  @return list.nth($elem, 3);
+}
+
+// Build :not([data-d="..."]) chain from a list of squares
+@function not-to-chain($squares) {
+  $result: "";
+  @each $sq in $squares {
+    $result: $result + ':not([data-d="' + $sq + '"])';
+  }
+  @return $result;
+}
+
+// Build empty-square :has() chain from a list of squares
+@function empty-chain($squares) {
+  $result: "";
+  @each $sq in $squares {
+    $result: $result + has-empty($sq);
+  }
+  @return $result;
+}
+
+// Extract square names from a slice of a ray (1-indexed, inclusive)
+// Returns empty list if $start > $end
+@function ray-sq-slice($ray, $start, $end) {
+  $result: ();
+  @if $start <= $end {
+    @for $i from $start through $end {
+      $result: list.append($result, ray-sq(list.nth($ray, $i)));
+    }
+  }
+  @return $result;
+}
+
+// Build empty-chain from a slice of a ray (1-indexed, inclusive)
+@function ray-empty-chain($ray, $start, $end) {
+  @return empty-chain(ray-sq-slice($ray, $start, $end));
+}
+
+// Opposite color helper
+@function opp-color($c) {
+  @if $c == "w" { @return "b"; }
+  @return "w";
+}
