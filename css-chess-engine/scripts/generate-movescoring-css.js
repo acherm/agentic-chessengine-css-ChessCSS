@@ -6,7 +6,7 @@
  * to compute MVV-LVA capture scores, positional bonuses, and depth-2 tactical awareness.
  *
  * Uses CSS if() with nested style() queries for SEE-aware threat penalties:
- * finds the cheapest attacker (pawn → knight → bishop → rook), computes
+ * finds the cheapest attacker (king → pawn → knight → bishop → rook), computes
  * max(moving_piece_value - min_attacker_value, 0), halved if any defense exists.
  * Requires Chromium 137+ (Puppeteer ships Chrome 145).
  *
@@ -18,6 +18,8 @@
  *   - Development bonuses (~18 rules)
  *   - Capture value rules (64 sq × 6 types = 384 rules)
  *   - Attacker value rules (64 sq × 6 types = 384 rules)
+ *   - King threat rules (~64 rules)
+ *   - King defense rules (~64 rules)
  *   - Pawn threat rules (~196 rules)
  *   - Knight threat rules (~672 rules)
  *   - Bishop/queen diagonal threat rules (~1,120 rules)
@@ -81,12 +83,13 @@ function slidingRay(fi, ri, dfi, dri) {
 
 /**
  * Build SEE penalty CSS if() expression.
- * Checks threats cheapest-first (pawn → knight → bishop → rook).
+ * Checks threats cheapest-first (king → pawn → knight → bishop → rook).
  * First matching threat wins (= cheapest attacker).
  * For each threat, computes max(moving_piece_value - threat_piece_value, 0).
  */
 function buildSEEPenalty() {
   const threats = [
+    { varName: '--king-threat', pieceValue: 0 },
     { varName: '--pawn-threat', pieceValue: 100 },
     { varName: '--knight-threat', pieceValue: 320 },
     { varName: '--bishop-threat', pieceValue: 330 },
@@ -145,10 +148,12 @@ function generate() {
   lines.push('  --dest-bonus: 0;');
   lines.push('  --develop-bonus: 0;');
   lines.push('  --castle-bonus: 0;');
+  lines.push('  --king-threat: 0;');
   lines.push('  --pawn-threat: 0;');
   lines.push('  --knight-threat: 0;');
   lines.push('  --bishop-threat: 0;');
   lines.push('  --rook-threat: 0;');
+  lines.push('  --king-defense: 0;');
   lines.push('  --pawn-defense: 0;');
   lines.push('  --knight-defense: 0;');
   lines.push('  --bishop-defense: 0;');
@@ -172,7 +177,7 @@ function generate() {
   lines.push('    + var(--develop-bonus)');
   lines.push('    + var(--castle-bonus)');
   lines.push('    - ' + seePenalty);
-  lines.push('      * (2 - max(var(--pawn-defense), var(--knight-defense), var(--bishop-defense), var(--rook-defense))) / 2');
+  lines.push('      * (2 - max(var(--king-defense), var(--pawn-defense), var(--knight-defense), var(--bishop-defense), var(--rook-defense))) / 2');
   lines.push('    - var(--disc-attack)');
   lines.push('    - var(--reversal-penalty)');
   // Check bonus: give bonus when move gives check (geometry flag + piece type match)
@@ -286,6 +291,16 @@ function generate() {
   }
   lines.push('');
 
+  // King threat rules
+  lines.push('/* ── King threat: destination adjacent to enemy king ── */');
+  generateKingThreats(lines);
+  lines.push('');
+
+  // King defense rules
+  lines.push('/* ── King defense: destination adjacent to friendly king ── */');
+  generateKingDefense(lines);
+  lines.push('');
+
   // Pawn threat rules
   lines.push('/* ── Pawn threat: destination attacked by enemy pawn ── */');
   generatePawnThreats(lines);
@@ -373,6 +388,86 @@ function generate() {
   generateReversalPenalty(lines);
 
   return lines.join('\n') + '\n';
+}
+
+/**
+ * King threats: detect when a destination square is adjacent to the enemy king.
+ * The king is the cheapest "attacker" (value 0), so any piece adjacent to the
+ * enemy king gets a SEE penalty equal to its full value.
+ * Uses :is() to cover both colors in a single rule per king square.
+ */
+function generateKingThreats(lines) {
+  const kingOffsets = [
+    [-1, -1], [-1, 0], [-1, 1],
+    [0, -1],           [0, 1],
+    [1, -1],  [1, 0],  [1, 1],
+  ];
+
+  for (let fi = 0; fi < 8; fi++) {
+    for (let ri = 1; ri <= 8; ri++) {
+      const kingSq = FILES[fi] + ri;
+
+      // Collect all adjacent squares
+      const adjSquares = [];
+      for (const [dfi, dri] of kingOffsets) {
+        const afi = fi + dfi;
+        const ari = ri + dri;
+        if (afi >= 0 && afi < 8 && ari >= 1 && ari <= 8) {
+          adjSquares.push(FILES[afi] + ari);
+        }
+      }
+      if (adjSquares.length === 0) continue;
+
+      const toSels = adjSquares.map(sq => `[data-to="${sq}"]`).join(',');
+
+      // White's turn: enemy king is black; Black's turn: enemy king is white
+      lines.push(
+        `:is(` +
+        `#game[data-turn="w"]:has(.sq[data-sq="${kingSq}"][data-piece="bK"]),` +
+        `#game[data-turn="b"]:has(.sq[data-sq="${kingSq}"][data-piece="wK"])` +
+        `) .move:is(${toSels}) { --king-threat: 1; }`
+      );
+    }
+  }
+}
+
+/**
+ * King defense: detect when a destination square is adjacent to the friendly king.
+ * Uses :is() to cover both colors in a single rule per king square.
+ */
+function generateKingDefense(lines) {
+  const kingOffsets = [
+    [-1, -1], [-1, 0], [-1, 1],
+    [0, -1],           [0, 1],
+    [1, -1],  [1, 0],  [1, 1],
+  ];
+
+  for (let fi = 0; fi < 8; fi++) {
+    for (let ri = 1; ri <= 8; ri++) {
+      const kingSq = FILES[fi] + ri;
+
+      // Collect all adjacent squares
+      const adjSquares = [];
+      for (const [dfi, dri] of kingOffsets) {
+        const afi = fi + dfi;
+        const ari = ri + dri;
+        if (afi >= 0 && afi < 8 && ari >= 1 && ari <= 8) {
+          adjSquares.push(FILES[afi] + ari);
+        }
+      }
+      if (adjSquares.length === 0) continue;
+
+      const toSels = adjSquares.map(sq => `[data-to="${sq}"]`).join(',');
+
+      // White's turn: friendly king is white; Black's turn: friendly king is black
+      lines.push(
+        `:is(` +
+        `#game[data-turn="w"]:has(.sq[data-sq="${kingSq}"][data-piece="wK"]),` +
+        `#game[data-turn="b"]:has(.sq[data-sq="${kingSq}"][data-piece="bK"])` +
+        `) .move:is(${toSels}) { --king-defense: 1; }`
+      );
+    }
+  }
 }
 
 /**
