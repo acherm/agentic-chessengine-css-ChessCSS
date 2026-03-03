@@ -303,7 +303,71 @@ body {
 #game[data-sel="h8"] ~ #ui-overlay .ov[data-s="h8"] {
   background: rgba(246, 246, 105, 0.6);
 }
-#ui-overlay .ov.dot::after {
+/* Legal move dots — pure CSS via data-dots on #game (space-separated square list) */
+#game[data-dots~="a1"] ~ #ui-overlay .ov[data-s="a1"]::after,
+#game[data-dots~="a2"] ~ #ui-overlay .ov[data-s="a2"]::after,
+#game[data-dots~="a3"] ~ #ui-overlay .ov[data-s="a3"]::after,
+#game[data-dots~="a4"] ~ #ui-overlay .ov[data-s="a4"]::after,
+#game[data-dots~="a5"] ~ #ui-overlay .ov[data-s="a5"]::after,
+#game[data-dots~="a6"] ~ #ui-overlay .ov[data-s="a6"]::after,
+#game[data-dots~="a7"] ~ #ui-overlay .ov[data-s="a7"]::after,
+#game[data-dots~="a8"] ~ #ui-overlay .ov[data-s="a8"]::after,
+#game[data-dots~="b1"] ~ #ui-overlay .ov[data-s="b1"]::after,
+#game[data-dots~="b2"] ~ #ui-overlay .ov[data-s="b2"]::after,
+#game[data-dots~="b3"] ~ #ui-overlay .ov[data-s="b3"]::after,
+#game[data-dots~="b4"] ~ #ui-overlay .ov[data-s="b4"]::after,
+#game[data-dots~="b5"] ~ #ui-overlay .ov[data-s="b5"]::after,
+#game[data-dots~="b6"] ~ #ui-overlay .ov[data-s="b6"]::after,
+#game[data-dots~="b7"] ~ #ui-overlay .ov[data-s="b7"]::after,
+#game[data-dots~="b8"] ~ #ui-overlay .ov[data-s="b8"]::after,
+#game[data-dots~="c1"] ~ #ui-overlay .ov[data-s="c1"]::after,
+#game[data-dots~="c2"] ~ #ui-overlay .ov[data-s="c2"]::after,
+#game[data-dots~="c3"] ~ #ui-overlay .ov[data-s="c3"]::after,
+#game[data-dots~="c4"] ~ #ui-overlay .ov[data-s="c4"]::after,
+#game[data-dots~="c5"] ~ #ui-overlay .ov[data-s="c5"]::after,
+#game[data-dots~="c6"] ~ #ui-overlay .ov[data-s="c6"]::after,
+#game[data-dots~="c7"] ~ #ui-overlay .ov[data-s="c7"]::after,
+#game[data-dots~="c8"] ~ #ui-overlay .ov[data-s="c8"]::after,
+#game[data-dots~="d1"] ~ #ui-overlay .ov[data-s="d1"]::after,
+#game[data-dots~="d2"] ~ #ui-overlay .ov[data-s="d2"]::after,
+#game[data-dots~="d3"] ~ #ui-overlay .ov[data-s="d3"]::after,
+#game[data-dots~="d4"] ~ #ui-overlay .ov[data-s="d4"]::after,
+#game[data-dots~="d5"] ~ #ui-overlay .ov[data-s="d5"]::after,
+#game[data-dots~="d6"] ~ #ui-overlay .ov[data-s="d6"]::after,
+#game[data-dots~="d7"] ~ #ui-overlay .ov[data-s="d7"]::after,
+#game[data-dots~="d8"] ~ #ui-overlay .ov[data-s="d8"]::after,
+#game[data-dots~="e1"] ~ #ui-overlay .ov[data-s="e1"]::after,
+#game[data-dots~="e2"] ~ #ui-overlay .ov[data-s="e2"]::after,
+#game[data-dots~="e3"] ~ #ui-overlay .ov[data-s="e3"]::after,
+#game[data-dots~="e4"] ~ #ui-overlay .ov[data-s="e4"]::after,
+#game[data-dots~="e5"] ~ #ui-overlay .ov[data-s="e5"]::after,
+#game[data-dots~="e6"] ~ #ui-overlay .ov[data-s="e6"]::after,
+#game[data-dots~="e7"] ~ #ui-overlay .ov[data-s="e7"]::after,
+#game[data-dots~="e8"] ~ #ui-overlay .ov[data-s="e8"]::after,
+#game[data-dots~="f1"] ~ #ui-overlay .ov[data-s="f1"]::after,
+#game[data-dots~="f2"] ~ #ui-overlay .ov[data-s="f2"]::after,
+#game[data-dots~="f3"] ~ #ui-overlay .ov[data-s="f3"]::after,
+#game[data-dots~="f4"] ~ #ui-overlay .ov[data-s="f4"]::after,
+#game[data-dots~="f5"] ~ #ui-overlay .ov[data-s="f5"]::after,
+#game[data-dots~="f6"] ~ #ui-overlay .ov[data-s="f6"]::after,
+#game[data-dots~="f7"] ~ #ui-overlay .ov[data-s="f7"]::after,
+#game[data-dots~="f8"] ~ #ui-overlay .ov[data-s="f8"]::after,
+#game[data-dots~="g1"] ~ #ui-overlay .ov[data-s="g1"]::after,
+#game[data-dots~="g2"] ~ #ui-overlay .ov[data-s="g2"]::after,
+#game[data-dots~="g3"] ~ #ui-overlay .ov[data-s="g3"]::after,
+#game[data-dots~="g4"] ~ #ui-overlay .ov[data-s="g4"]::after,
+#game[data-dots~="g5"] ~ #ui-overlay .ov[data-s="g5"]::after,
+#game[data-dots~="g6"] ~ #ui-overlay .ov[data-s="g6"]::after,
+#game[data-dots~="g7"] ~ #ui-overlay .ov[data-s="g7"]::after,
+#game[data-dots~="g8"] ~ #ui-overlay .ov[data-s="g8"]::after,
+#game[data-dots~="h1"] ~ #ui-overlay .ov[data-s="h1"]::after,
+#game[data-dots~="h2"] ~ #ui-overlay .ov[data-s="h2"]::after,
+#game[data-dots~="h3"] ~ #ui-overlay .ov[data-s="h3"]::after,
+#game[data-dots~="h4"] ~ #ui-overlay .ov[data-s="h4"]::after,
+#game[data-dots~="h5"] ~ #ui-overlay .ov[data-s="h5"]::after,
+#game[data-dots~="h6"] ~ #ui-overlay .ov[data-s="h6"]::after,
+#game[data-dots~="h7"] ~ #ui-overlay .ov[data-s="h7"]::after,
+#game[data-dots~="h8"] ~ #ui-overlay .ov[data-s="h8"]::after {
   content: '';
   position: absolute;
   top: 50%; left: 50%;
@@ -312,7 +376,71 @@ body {
   background: rgba(0, 0, 0, 0.15);
   border-radius: 50%;
 }
-#ui-overlay .ov.ring::after {
+/* Capture rings — pure CSS via data-rings on #game (space-separated square list) */
+#game[data-rings~="a1"] ~ #ui-overlay .ov[data-s="a1"]::after,
+#game[data-rings~="a2"] ~ #ui-overlay .ov[data-s="a2"]::after,
+#game[data-rings~="a3"] ~ #ui-overlay .ov[data-s="a3"]::after,
+#game[data-rings~="a4"] ~ #ui-overlay .ov[data-s="a4"]::after,
+#game[data-rings~="a5"] ~ #ui-overlay .ov[data-s="a5"]::after,
+#game[data-rings~="a6"] ~ #ui-overlay .ov[data-s="a6"]::after,
+#game[data-rings~="a7"] ~ #ui-overlay .ov[data-s="a7"]::after,
+#game[data-rings~="a8"] ~ #ui-overlay .ov[data-s="a8"]::after,
+#game[data-rings~="b1"] ~ #ui-overlay .ov[data-s="b1"]::after,
+#game[data-rings~="b2"] ~ #ui-overlay .ov[data-s="b2"]::after,
+#game[data-rings~="b3"] ~ #ui-overlay .ov[data-s="b3"]::after,
+#game[data-rings~="b4"] ~ #ui-overlay .ov[data-s="b4"]::after,
+#game[data-rings~="b5"] ~ #ui-overlay .ov[data-s="b5"]::after,
+#game[data-rings~="b6"] ~ #ui-overlay .ov[data-s="b6"]::after,
+#game[data-rings~="b7"] ~ #ui-overlay .ov[data-s="b7"]::after,
+#game[data-rings~="b8"] ~ #ui-overlay .ov[data-s="b8"]::after,
+#game[data-rings~="c1"] ~ #ui-overlay .ov[data-s="c1"]::after,
+#game[data-rings~="c2"] ~ #ui-overlay .ov[data-s="c2"]::after,
+#game[data-rings~="c3"] ~ #ui-overlay .ov[data-s="c3"]::after,
+#game[data-rings~="c4"] ~ #ui-overlay .ov[data-s="c4"]::after,
+#game[data-rings~="c5"] ~ #ui-overlay .ov[data-s="c5"]::after,
+#game[data-rings~="c6"] ~ #ui-overlay .ov[data-s="c6"]::after,
+#game[data-rings~="c7"] ~ #ui-overlay .ov[data-s="c7"]::after,
+#game[data-rings~="c8"] ~ #ui-overlay .ov[data-s="c8"]::after,
+#game[data-rings~="d1"] ~ #ui-overlay .ov[data-s="d1"]::after,
+#game[data-rings~="d2"] ~ #ui-overlay .ov[data-s="d2"]::after,
+#game[data-rings~="d3"] ~ #ui-overlay .ov[data-s="d3"]::after,
+#game[data-rings~="d4"] ~ #ui-overlay .ov[data-s="d4"]::after,
+#game[data-rings~="d5"] ~ #ui-overlay .ov[data-s="d5"]::after,
+#game[data-rings~="d6"] ~ #ui-overlay .ov[data-s="d6"]::after,
+#game[data-rings~="d7"] ~ #ui-overlay .ov[data-s="d7"]::after,
+#game[data-rings~="d8"] ~ #ui-overlay .ov[data-s="d8"]::after,
+#game[data-rings~="e1"] ~ #ui-overlay .ov[data-s="e1"]::after,
+#game[data-rings~="e2"] ~ #ui-overlay .ov[data-s="e2"]::after,
+#game[data-rings~="e3"] ~ #ui-overlay .ov[data-s="e3"]::after,
+#game[data-rings~="e4"] ~ #ui-overlay .ov[data-s="e4"]::after,
+#game[data-rings~="e5"] ~ #ui-overlay .ov[data-s="e5"]::after,
+#game[data-rings~="e6"] ~ #ui-overlay .ov[data-s="e6"]::after,
+#game[data-rings~="e7"] ~ #ui-overlay .ov[data-s="e7"]::after,
+#game[data-rings~="e8"] ~ #ui-overlay .ov[data-s="e8"]::after,
+#game[data-rings~="f1"] ~ #ui-overlay .ov[data-s="f1"]::after,
+#game[data-rings~="f2"] ~ #ui-overlay .ov[data-s="f2"]::after,
+#game[data-rings~="f3"] ~ #ui-overlay .ov[data-s="f3"]::after,
+#game[data-rings~="f4"] ~ #ui-overlay .ov[data-s="f4"]::after,
+#game[data-rings~="f5"] ~ #ui-overlay .ov[data-s="f5"]::after,
+#game[data-rings~="f6"] ~ #ui-overlay .ov[data-s="f6"]::after,
+#game[data-rings~="f7"] ~ #ui-overlay .ov[data-s="f7"]::after,
+#game[data-rings~="f8"] ~ #ui-overlay .ov[data-s="f8"]::after,
+#game[data-rings~="g1"] ~ #ui-overlay .ov[data-s="g1"]::after,
+#game[data-rings~="g2"] ~ #ui-overlay .ov[data-s="g2"]::after,
+#game[data-rings~="g3"] ~ #ui-overlay .ov[data-s="g3"]::after,
+#game[data-rings~="g4"] ~ #ui-overlay .ov[data-s="g4"]::after,
+#game[data-rings~="g5"] ~ #ui-overlay .ov[data-s="g5"]::after,
+#game[data-rings~="g6"] ~ #ui-overlay .ov[data-s="g6"]::after,
+#game[data-rings~="g7"] ~ #ui-overlay .ov[data-s="g7"]::after,
+#game[data-rings~="g8"] ~ #ui-overlay .ov[data-s="g8"]::after,
+#game[data-rings~="h1"] ~ #ui-overlay .ov[data-s="h1"]::after,
+#game[data-rings~="h2"] ~ #ui-overlay .ov[data-s="h2"]::after,
+#game[data-rings~="h3"] ~ #ui-overlay .ov[data-s="h3"]::after,
+#game[data-rings~="h4"] ~ #ui-overlay .ov[data-s="h4"]::after,
+#game[data-rings~="h5"] ~ #ui-overlay .ov[data-s="h5"]::after,
+#game[data-rings~="h6"] ~ #ui-overlay .ov[data-s="h6"]::after,
+#game[data-rings~="h7"] ~ #ui-overlay .ov[data-s="h7"]::after,
+#game[data-rings~="h8"] ~ #ui-overlay .ov[data-s="h8"]::after {
   content: '';
   position: absolute;
   top: 50%; left: 50%;
@@ -4735,17 +4863,13 @@ for (const el of board.querySelectorAll('.sq')) sqElements.set(el.dataset.s, el)
 const candidateEls = document.querySelectorAll('#candidates .move');
 
 // ── Build overlay cells (outside #game — no CSS recalc) ──
-const ovElements = new Map();
 const uiOverlay = document.getElementById('ui-overlay');
-const ranks = ['8','7','6','5','4','3','2','1'];
-const fileLetters = ['a','b','c','d','e','f','g','h'];
-for (const r of ranks) {
-  for (const f of fileLetters) {
+for (const r of ['8','7','6','5','4','3','2','1']) {
+  for (const f of ['a','b','c','d','e','f','g','h']) {
     const div = document.createElement('div');
     div.className = 'ov';
     div.dataset.s = f + r;
     uiOverlay.appendChild(div);
-    ovElements.set(f + r, div);
   }
 }
 
@@ -4947,6 +5071,8 @@ function init() {
   resetBoard('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1');
   game.removeAttribute('data-result');
   game.removeAttribute('data-sel');
+  game.removeAttribute('data-dots');
+  game.removeAttribute('data-rings');
 
   document.getElementById('move-list').innerHTML = '';
 }
@@ -4990,23 +5116,24 @@ function selectSquare(sq) {
 
   currentLegalMoves = getLegalMoves();
 
-  // Selected highlight via CSS (data-sel on #game — ~0ms, no engine recalc)
+  // All visual feedback via CSS attributes on #game (~0ms, no engine recalc)
   game.setAttribute('data-sel', sq);
-  const seen = new Set();
+  const dots = [], rings = [], seen = new Set();
   for (const move of currentLegalMoves) {
     if (move.from !== sq || seen.has(move.to)) continue;
     seen.add(move.to);
-    ovElements.get(move.to).classList.add(move.captured ? 'ring' : 'dot');
+    (move.captured ? rings : dots).push(move.to);
   }
+  if (dots.length) game.setAttribute('data-dots', dots.join(' '));
+  if (rings.length) game.setAttribute('data-rings', rings.join(' '));
 }
 
 // ── clearSelection() ──
 function clearSelection() {
   selectedSquare = null;
   game.removeAttribute('data-sel');
-  for (const el of ovElements.values()) {
-    el.classList.remove('dot', 'ring');
-  }
+  game.removeAttribute('data-dots');
+  game.removeAttribute('data-rings');
 }
 
 // ── showPromotionDialog(toSq, fromSq) ──
