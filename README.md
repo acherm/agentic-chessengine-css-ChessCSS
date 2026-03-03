@@ -6,6 +6,18 @@ A chess engine that pushes as much logic as possible into pure CSS. Move generat
 
 **[Play it in your browser](http://blog.mathieuacher.com/agentic-chessengine-css-ChessCSS/play.html)** (requires Chromium 137+ for CSS `if()` support)
 
+Current status/thoughts:
+ * still unclear whether we can move to pure CSS, JavaScript seems needed
+ * would love to have the opinions of CSS nerds... 
+ * I'm expecting we will see relatively strong CSS engines in near future, thanks to humans and coding agents
+ * I had a working version without `if()` and it was not that bad... `if()` breaks a bit the purity of the solution (it's still CSS, and the future, but still, it's easier)
+ * how far can we push the level of the CSS engine? There are two directions: (1) fight with the constraints and encode lots of tricks/heuristics; (2) change the computational model and have a way to ambition advanced features (search)
+ * tradeoff between size of the bundle (though gzip can compress immensely), time needed to play moves, and Elo/rating/strength 
+ * it is funny to notice some clear limitations (eg inability to checkmate with large advantage and tendency to repeat moves due to lack of memory, thus leading to very frustrating draws) and have plenty of ideas to still deal with them... back in the 70s?
+ * I need to tell the story of this development... clearly, it is related to https://blog.mathieuacher.com/FromScratchChessEnginesPolyglot/ and https://blog.mathieuacher.com/TeXCCChessEngine/ but the main difference is that I really had to drive the agent with technical expertise (chess and programming), to be proactive, and even to encourage the agents to not giving up with CSS ;-) Hence, from an experimental perspective, this engine is out of the scope of previous experiments that were more "from scratch, no/little guidance".
+ * I'm now operating/navigating at a very interesting abstraction level: I can truly realize chess engine specific ideas (eg heuristics), and I am never editing the generators or CSS directly... It was not the case at all at the beginning 
+ * it's so fun and magik 
+
 ## How It Works
 
 The core idea: a chess position is represented as HTML elements with `data-*` attributes, and CSS rules "compute" everything by matching patterns in the DOM.
