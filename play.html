@@ -106,7 +106,137 @@ body {
 }
 #ui-overlay .ov { position: relative; }
 #ui-overlay .ov.selected { background: rgba(246, 246, 105, 0.6); }
-#ui-overlay .ov.last-move { background: rgba(170, 200, 232, 0.5); }
+/* Last-move highlight — pure CSS via data attributes on #game + sibling combinator */
+#game[data-lf="a1"] ~ #ui-overlay .ov[data-s="a1"],
+#game[data-lt="a1"] ~ #ui-overlay .ov[data-s="a1"],
+#game[data-lf="a2"] ~ #ui-overlay .ov[data-s="a2"],
+#game[data-lt="a2"] ~ #ui-overlay .ov[data-s="a2"],
+#game[data-lf="a3"] ~ #ui-overlay .ov[data-s="a3"],
+#game[data-lt="a3"] ~ #ui-overlay .ov[data-s="a3"],
+#game[data-lf="a4"] ~ #ui-overlay .ov[data-s="a4"],
+#game[data-lt="a4"] ~ #ui-overlay .ov[data-s="a4"],
+#game[data-lf="a5"] ~ #ui-overlay .ov[data-s="a5"],
+#game[data-lt="a5"] ~ #ui-overlay .ov[data-s="a5"],
+#game[data-lf="a6"] ~ #ui-overlay .ov[data-s="a6"],
+#game[data-lt="a6"] ~ #ui-overlay .ov[data-s="a6"],
+#game[data-lf="a7"] ~ #ui-overlay .ov[data-s="a7"],
+#game[data-lt="a7"] ~ #ui-overlay .ov[data-s="a7"],
+#game[data-lf="a8"] ~ #ui-overlay .ov[data-s="a8"],
+#game[data-lt="a8"] ~ #ui-overlay .ov[data-s="a8"],
+#game[data-lf="b1"] ~ #ui-overlay .ov[data-s="b1"],
+#game[data-lt="b1"] ~ #ui-overlay .ov[data-s="b1"],
+#game[data-lf="b2"] ~ #ui-overlay .ov[data-s="b2"],
+#game[data-lt="b2"] ~ #ui-overlay .ov[data-s="b2"],
+#game[data-lf="b3"] ~ #ui-overlay .ov[data-s="b3"],
+#game[data-lt="b3"] ~ #ui-overlay .ov[data-s="b3"],
+#game[data-lf="b4"] ~ #ui-overlay .ov[data-s="b4"],
+#game[data-lt="b4"] ~ #ui-overlay .ov[data-s="b4"],
+#game[data-lf="b5"] ~ #ui-overlay .ov[data-s="b5"],
+#game[data-lt="b5"] ~ #ui-overlay .ov[data-s="b5"],
+#game[data-lf="b6"] ~ #ui-overlay .ov[data-s="b6"],
+#game[data-lt="b6"] ~ #ui-overlay .ov[data-s="b6"],
+#game[data-lf="b7"] ~ #ui-overlay .ov[data-s="b7"],
+#game[data-lt="b7"] ~ #ui-overlay .ov[data-s="b7"],
+#game[data-lf="b8"] ~ #ui-overlay .ov[data-s="b8"],
+#game[data-lt="b8"] ~ #ui-overlay .ov[data-s="b8"],
+#game[data-lf="c1"] ~ #ui-overlay .ov[data-s="c1"],
+#game[data-lt="c1"] ~ #ui-overlay .ov[data-s="c1"],
+#game[data-lf="c2"] ~ #ui-overlay .ov[data-s="c2"],
+#game[data-lt="c2"] ~ #ui-overlay .ov[data-s="c2"],
+#game[data-lf="c3"] ~ #ui-overlay .ov[data-s="c3"],
+#game[data-lt="c3"] ~ #ui-overlay .ov[data-s="c3"],
+#game[data-lf="c4"] ~ #ui-overlay .ov[data-s="c4"],
+#game[data-lt="c4"] ~ #ui-overlay .ov[data-s="c4"],
+#game[data-lf="c5"] ~ #ui-overlay .ov[data-s="c5"],
+#game[data-lt="c5"] ~ #ui-overlay .ov[data-s="c5"],
+#game[data-lf="c6"] ~ #ui-overlay .ov[data-s="c6"],
+#game[data-lt="c6"] ~ #ui-overlay .ov[data-s="c6"],
+#game[data-lf="c7"] ~ #ui-overlay .ov[data-s="c7"],
+#game[data-lt="c7"] ~ #ui-overlay .ov[data-s="c7"],
+#game[data-lf="c8"] ~ #ui-overlay .ov[data-s="c8"],
+#game[data-lt="c8"] ~ #ui-overlay .ov[data-s="c8"],
+#game[data-lf="d1"] ~ #ui-overlay .ov[data-s="d1"],
+#game[data-lt="d1"] ~ #ui-overlay .ov[data-s="d1"],
+#game[data-lf="d2"] ~ #ui-overlay .ov[data-s="d2"],
+#game[data-lt="d2"] ~ #ui-overlay .ov[data-s="d2"],
+#game[data-lf="d3"] ~ #ui-overlay .ov[data-s="d3"],
+#game[data-lt="d3"] ~ #ui-overlay .ov[data-s="d3"],
+#game[data-lf="d4"] ~ #ui-overlay .ov[data-s="d4"],
+#game[data-lt="d4"] ~ #ui-overlay .ov[data-s="d4"],
+#game[data-lf="d5"] ~ #ui-overlay .ov[data-s="d5"],
+#game[data-lt="d5"] ~ #ui-overlay .ov[data-s="d5"],
+#game[data-lf="d6"] ~ #ui-overlay .ov[data-s="d6"],
+#game[data-lt="d6"] ~ #ui-overlay .ov[data-s="d6"],
+#game[data-lf="d7"] ~ #ui-overlay .ov[data-s="d7"],
+#game[data-lt="d7"] ~ #ui-overlay .ov[data-s="d7"],
+#game[data-lf="d8"] ~ #ui-overlay .ov[data-s="d8"],
+#game[data-lt="d8"] ~ #ui-overlay .ov[data-s="d8"],
+#game[data-lf="e1"] ~ #ui-overlay .ov[data-s="e1"],
+#game[data-lt="e1"] ~ #ui-overlay .ov[data-s="e1"],
+#game[data-lf="e2"] ~ #ui-overlay .ov[data-s="e2"],
+#game[data-lt="e2"] ~ #ui-overlay .ov[data-s="e2"],
+#game[data-lf="e3"] ~ #ui-overlay .ov[data-s="e3"],
+#game[data-lt="e3"] ~ #ui-overlay .ov[data-s="e3"],
+#game[data-lf="e4"] ~ #ui-overlay .ov[data-s="e4"],
+#game[data-lt="e4"] ~ #ui-overlay .ov[data-s="e4"],
+#game[data-lf="e5"] ~ #ui-overlay .ov[data-s="e5"],
+#game[data-lt="e5"] ~ #ui-overlay .ov[data-s="e5"],
+#game[data-lf="e6"] ~ #ui-overlay .ov[data-s="e6"],
+#game[data-lt="e6"] ~ #ui-overlay .ov[data-s="e6"],
+#game[data-lf="e7"] ~ #ui-overlay .ov[data-s="e7"],
+#game[data-lt="e7"] ~ #ui-overlay .ov[data-s="e7"],
+#game[data-lf="e8"] ~ #ui-overlay .ov[data-s="e8"],
+#game[data-lt="e8"] ~ #ui-overlay .ov[data-s="e8"],
+#game[data-lf="f1"] ~ #ui-overlay .ov[data-s="f1"],
+#game[data-lt="f1"] ~ #ui-overlay .ov[data-s="f1"],
+#game[data-lf="f2"] ~ #ui-overlay .ov[data-s="f2"],
+#game[data-lt="f2"] ~ #ui-overlay .ov[data-s="f2"],
+#game[data-lf="f3"] ~ #ui-overlay .ov[data-s="f3"],
+#game[data-lt="f3"] ~ #ui-overlay .ov[data-s="f3"],
+#game[data-lf="f4"] ~ #ui-overlay .ov[data-s="f4"],
+#game[data-lt="f4"] ~ #ui-overlay .ov[data-s="f4"],
+#game[data-lf="f5"] ~ #ui-overlay .ov[data-s="f5"],
+#game[data-lt="f5"] ~ #ui-overlay .ov[data-s="f5"],
+#game[data-lf="f6"] ~ #ui-overlay .ov[data-s="f6"],
+#game[data-lt="f6"] ~ #ui-overlay .ov[data-s="f6"],
+#game[data-lf="f7"] ~ #ui-overlay .ov[data-s="f7"],
+#game[data-lt="f7"] ~ #ui-overlay .ov[data-s="f7"],
+#game[data-lf="f8"] ~ #ui-overlay .ov[data-s="f8"],
+#game[data-lt="f8"] ~ #ui-overlay .ov[data-s="f8"],
+#game[data-lf="g1"] ~ #ui-overlay .ov[data-s="g1"],
+#game[data-lt="g1"] ~ #ui-overlay .ov[data-s="g1"],
+#game[data-lf="g2"] ~ #ui-overlay .ov[data-s="g2"],
+#game[data-lt="g2"] ~ #ui-overlay .ov[data-s="g2"],
+#game[data-lf="g3"] ~ #ui-overlay .ov[data-s="g3"],
+#game[data-lt="g3"] ~ #ui-overlay .ov[data-s="g3"],
+#game[data-lf="g4"] ~ #ui-overlay .ov[data-s="g4"],
+#game[data-lt="g4"] ~ #ui-overlay .ov[data-s="g4"],
+#game[data-lf="g5"] ~ #ui-overlay .ov[data-s="g5"],
+#game[data-lt="g5"] ~ #ui-overlay .ov[data-s="g5"],
+#game[data-lf="g6"] ~ #ui-overlay .ov[data-s="g6"],
+#game[data-lt="g6"] ~ #ui-overlay .ov[data-s="g6"],
+#game[data-lf="g7"] ~ #ui-overlay .ov[data-s="g7"],
+#game[data-lt="g7"] ~ #ui-overlay .ov[data-s="g7"],
+#game[data-lf="g8"] ~ #ui-overlay .ov[data-s="g8"],
+#game[data-lt="g8"] ~ #ui-overlay .ov[data-s="g8"],
+#game[data-lf="h1"] ~ #ui-overlay .ov[data-s="h1"],
+#game[data-lt="h1"] ~ #ui-overlay .ov[data-s="h1"],
+#game[data-lf="h2"] ~ #ui-overlay .ov[data-s="h2"],
+#game[data-lt="h2"] ~ #ui-overlay .ov[data-s="h2"],
+#game[data-lf="h3"] ~ #ui-overlay .ov[data-s="h3"],
+#game[data-lt="h3"] ~ #ui-overlay .ov[data-s="h3"],
+#game[data-lf="h4"] ~ #ui-overlay .ov[data-s="h4"],
+#game[data-lt="h4"] ~ #ui-overlay .ov[data-s="h4"],
+#game[data-lf="h5"] ~ #ui-overlay .ov[data-s="h5"],
+#game[data-lt="h5"] ~ #ui-overlay .ov[data-s="h5"],
+#game[data-lf="h6"] ~ #ui-overlay .ov[data-s="h6"],
+#game[data-lt="h6"] ~ #ui-overlay .ov[data-s="h6"],
+#game[data-lf="h7"] ~ #ui-overlay .ov[data-s="h7"],
+#game[data-lt="h7"] ~ #ui-overlay .ov[data-s="h7"],
+#game[data-lf="h8"] ~ #ui-overlay .ov[data-s="h8"],
+#game[data-lt="h8"] ~ #ui-overlay .ov[data-s="h8"] {
+  background: rgba(170, 200, 232, 0.5);
+}
 #ui-overlay .ov.dot::after {
   content: '';
   position: absolute;
@@ -4584,11 +4714,13 @@ function resetBoard(fen) {
   game.setAttribute('data-cbq', castling.includes('q') ? '1' : '0');
   game.dataset.e = (parts[3] && parts[3] !== '-') ? parts[3] : 'none';
 
-  // Clear last-move tracking (for reversal penalty)
+  // Clear last-move tracking (for reversal penalty + CSS overlay highlight)
   game.removeAttribute('data-lfw');
   game.removeAttribute('data-ltw');
   game.removeAttribute('data-lfb');
   game.removeAttribute('data-ltb');
+  game.removeAttribute('data-lf');
+  game.removeAttribute('data-lt');
 }
 
 // ── applyMove(move) ── Directly mutate DOM attributes
@@ -4645,6 +4777,10 @@ function applyMove(move) {
   // Record this side's last move (for reversal penalty)
   game.setAttribute('data-lf' + color, move.from);
   game.setAttribute('data-lt' + color, move.to);
+
+  // Generic last-move attributes (drives CSS overlay highlight)
+  game.setAttribute('data-lf', move.from);
+  game.setAttribute('data-lt', move.to);
 
   // Switch turn
   game.dataset.t = color === 'w' ? 'b' : 'w';
@@ -4833,7 +4969,6 @@ function playMove(move) {
 
   moveHistory.push({ san, from: move.from, to: move.to });
 
-  updateBoard(move);
   updateMoveList();
 
   if (checkGameEnd()) return;
@@ -4865,22 +5000,11 @@ function engineMove() {
 
   moveHistory.push({ san, from: bestMove.from, to: bestMove.to });
 
-  updateBoard(bestMove);
   updateMoveList();
 
   if (checkGameEnd()) return;
 
   setStatus('Your turn (White)');
-}
-
-// ── updateBoard(lastMove) ──
-function updateBoard(lastMove) {
-  // Clear last-move from overlay (not #game .sq)
-  for (const el of ovElements.values()) el.classList.remove('last-move');
-  if (lastMove) {
-    ovElements.get(lastMove.from).classList.add('last-move');
-    ovElements.get(lastMove.to).classList.add('last-move');
-  }
 }
 
 // ── checkGameEnd() ──
